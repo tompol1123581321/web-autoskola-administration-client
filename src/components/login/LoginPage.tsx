@@ -4,9 +4,10 @@ import { useCallback, useState } from "react";
 import { useLogin } from "../../hooks/login/useLogin";
 
 export const LoginPage = () => {
-  const [loginFormState, setLoginFormState] = useState<
-    Omit<Administrator, "email">
-  >({ password: "", userName: "" });
+  const [loginFormState, setLoginFormState] = useState<Administrator>({
+    password: "",
+    userName: "",
+  });
 
   const { login } = useLogin();
 

@@ -8,7 +8,7 @@ interface LoginAdminResponse {
 }
 
 export const loginAdmin = async (
-  administratorData: Omit<Administrator, "email">
+  administratorData: Administrator
 ): Promise<LoginAdminResponse> => {
   try {
     const response = await fetch(`${COMMON_ADMIN_API}/login`, {

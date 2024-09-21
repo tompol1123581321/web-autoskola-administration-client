@@ -10,7 +10,7 @@ export const useLogin = () => {
     update,
     value: { isLoggedIn, jwt },
   } = useContext(LoginContext);
-  const login = async (userData: Omit<Administrator, "email">) => {
+  const login = async (userData: Administrator) => {
     const { isAuthorized, token } = await loginAdmin(userData);
     update({ isLoggedIn: isAuthorized, jwt: token });
   };
