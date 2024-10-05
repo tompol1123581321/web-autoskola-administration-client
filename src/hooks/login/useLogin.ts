@@ -20,5 +20,26 @@ export const useLogin = () => {
     navigate("/");
   };
 
-  return { login, isLoggedIn, jwt, logout };
+  const withToken = (
+    asyncCb: <T, R>(token: string, ...args: T[]) => Promise<R>
+  ) => {
+    return async (...args: any[]) => {
+      if (!jwt) {
+        await logout();
+        return;
+      }
+      try {
+        const result = await asyncCb(jwt, ...args);
+        return result;
+      } catch (error: any) {
+        if (error.response && error.response.status === 401) {
+          await logout();
+        } else {
+          throw error;
+        }
+      }
+    };
+  };
+
+  return { login, isLoggedIn, jwt, logout, withToken };
 };
