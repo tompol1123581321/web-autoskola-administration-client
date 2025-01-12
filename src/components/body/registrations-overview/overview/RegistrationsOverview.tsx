@@ -1,14 +1,16 @@
-import {
-  FilterOutlined,
-  ClearOutlined,
-  PlusCircleFilled,
-  PlusOutlined,
-} from "@ant-design/icons";
-import { Row, Col, Button, Space } from "antd";
+import { PlusOutlined } from "@ant-design/icons";
+import { Row, Button } from "antd";
 import { RegistrationsOverviewFilterForm } from "./RegistrationsOverviewFilterForm";
 import { RegistrationsOverviewTable } from "./RegistrationsOverviewTable";
+import { useNavigate } from "react-router-dom";
 
 export const RegistrationsOverview = () => {
+  const navigate = useNavigate();
+
+  const onAdd = () => {
+    navigate("/app/registration-detail/add");
+  };
+
   return (
     <>
       <RegistrationsOverviewFilterForm
@@ -16,9 +18,13 @@ export const RegistrationsOverview = () => {
         onSubmit={console.log}
         filterState={{} as any}
         updateFilterState={console.log}
+        loading={false}
+        termsOptions={[]}
       />
       <Row align={"middle"} justify={"start"} className="my-2 mx-4">
-        <Button icon={<PlusOutlined />}>Přidat</Button>
+        <Button onClick={onAdd} icon={<PlusOutlined />}>
+          Přidat
+        </Button>
       </Row>
 
       <RegistrationsOverviewTable />

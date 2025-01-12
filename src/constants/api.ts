@@ -1,1 +1,1 @@
-export const COMMON_ADMIN_API = "/api";
+export const COMMON_ADMIN_API = "https://web-autoskola-server.deno.dev/api";

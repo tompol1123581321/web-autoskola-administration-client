@@ -1,18 +1,10 @@
-import { PropsWithChildren, useEffect } from "react";
-import { useLogin } from "../../hooks/login/useLogin";
+import React, { useContext } from "react";
+import { Navigate, Outlet } from "react-router-dom";
+import { LoginContext } from "../../hooks/login/LoginContextProvider";
 
-export const ProtectedAppRoute: React.FC<PropsWithChildren> = ({
-  children,
-}) => {
-  const { isLoggedIn, logout } = useLogin();
-
-  useEffect(() => {
-    if (!isLoggedIn) {
-      logout();
-    }
-  }, [isLoggedIn]);
-
-  if (!isLoggedIn) return null;
-
-  return children;
+export const ProtectedRoute: React.FC = () => {
+  const {
+    value: { isLoggedIn },
+  } = useContext(LoginContext);
+  return isLoggedIn ? <Outlet /> : <Navigate to="/login" replace />;
 };

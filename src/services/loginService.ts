@@ -4,7 +4,7 @@ import { COMMON_ADMIN_API } from "../constants/api";
 // Define the response type based on the server's response structure
 interface LoginAdminResponse {
   isAuthorized: boolean;
-  token?: string;
+  user?: { name: string };
 }
 
 export const loginAdmin = async (

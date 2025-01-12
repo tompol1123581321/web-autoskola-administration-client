@@ -4,10 +4,12 @@ import { NavigationComponent } from "./Navigation";
 import { Button, Layout, Typography } from "antd";
 import { LockFilled } from "@ant-design/icons";
 import { Outlet } from "react-router-dom";
+import { useLogin } from "../../hooks/login/useLogin";
 
 const { Content, Header } = Layout;
 
 export const AppContainer: React.FC = () => {
+  const { logout } = useLogin();
   return (
     <Layout className="min-h-screen">
       <div className="flex justify-between items-center w-11/12 m-auto">
@@ -15,7 +17,7 @@ export const AppContainer: React.FC = () => {
           Autoškola Hlaváček (Administrační obrazovka)
         </Typography.Paragraph>
 
-        <Button onClick={console.log} className="m-2">
+        <Button onClick={logout} className="m-2">
           <LockFilled className="mr-2" />
           Odhlásit
         </Button>

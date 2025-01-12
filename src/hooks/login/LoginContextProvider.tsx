@@ -1,12 +1,17 @@
-import { createContext, PropsWithChildren, useState } from "react";
+// context/LoginContextProvider.tsx
+
+import React, { createContext, PropsWithChildren, useState } from "react";
 
 type LoginContextType = {
   update: (newContext: LoginContextType["value"]) => void;
-  value: { jwt?: string; isLoggedIn: boolean };
+  value: { isLoggedIn: boolean; userName?: string };
+  logout: () => void;
 };
+
 const DEFAULT_CONTEXT_VALUE: LoginContextType = {
   update: () => {},
-  value: { isLoggedIn: true },
+  value: { isLoggedIn: false },
+  logout: () => {},
 };
 
 export const LoginContext = createContext<LoginContextType>(
@@ -18,9 +23,14 @@ export const LoginContextProvider: React.FC<PropsWithChildren> = ({
 }) => {
   const [contextValue, setContextValue] = useState(DEFAULT_CONTEXT_VALUE.value);
 
+  const logout = () => {
+    setContextValue({ isLoggedIn: false, userName: undefined });
+    // Optionally, you can perform additional actions here, such as clearing local storage
+  };
+
   return (
     <LoginContext.Provider
-      value={{ value: contextValue, update: setContextValue }}
+      value={{ value: contextValue, update: setContextValue, logout }}
     >
       {children}
     </LoginContext.Provider>
