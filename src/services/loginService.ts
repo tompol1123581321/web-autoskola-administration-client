@@ -7,8 +7,8 @@ interface LoginAdminResponse {
   user?: { name: string };
 }
 
-export const loginAdmin = async (
-  administratorData: Administrator
+export const loginAdminRequest = async (
+  administratorData: Omit<Administrator, "email">
 ): Promise<LoginAdminResponse> => {
   try {
     const response = await fetch(`${COMMON_ADMIN_API}/login`, {
@@ -21,7 +21,10 @@ export const loginAdmin = async (
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
+      const errorData = await response.json();
+      throw new Error(
+        errorData.error || `HTTP error! Status: ${response.status}`
+      );
     }
 
     const data: LoginAdminResponse = await response.json();
@@ -29,5 +32,25 @@ export const loginAdmin = async (
   } catch (e) {
     console.error("Error during login:", e);
     throw e; // Rethrow the error to be handled by the caller
+  }
+};
+
+export const logoutAdminRequest = async () => {
+  // Make a logout API call to the server
+  try {
+    const response = await fetch(`${COMMON_ADMIN_API}/logout`, {
+      method: "POST",
+      credentials: "include",
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(
+        errorData.error || `HTTP error! Status: ${response.status}`
+      );
+    }
+  } catch (error) {
+    console.error("Logout error:", error);
+    throw new Error(error as string);
   }
 };

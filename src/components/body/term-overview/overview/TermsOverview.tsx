@@ -19,7 +19,6 @@ export const TermsOverview = () => {
         filterState={{} as any}
         updateFilterState={console.log}
         loading={false}
-        termsOptions={[]}
       />
       <Row align={"middle"} justify={"start"} className="my-2 mx-4">
         <Button onClick={onAdd} icon={<PlusOutlined />}>
