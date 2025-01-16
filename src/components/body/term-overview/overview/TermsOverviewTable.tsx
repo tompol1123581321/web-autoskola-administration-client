@@ -49,7 +49,7 @@ const columns: ColumnsType<Term> = [
     dataIndex: "registrations",
 
     render(value) {
-      return value.length;
+      return value?.length ?? 0;
     },
     key: "registrations",
     width: 100,
