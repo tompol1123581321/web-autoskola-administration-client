@@ -27,7 +27,7 @@ const columns: ColumnsType<Term> = [
     title: "Aktivní", // Phone Number
     dataIndex: "isActive",
     key: "isActive",
-    render(value, record, index) {
+    render(value) {
       return value ? "Aktivní" : "Neaktivní";
     },
     width: 100,
@@ -37,7 +37,7 @@ const columns: ColumnsType<Term> = [
     title: "Maximální počet registrací", // Phone Number
     dataIndex: "termConfig",
 
-    render(value, record, index) {
+    render(_, record) {
       return record.termConfig.maxRegistrationsCount;
     },
     key: "termConfig",
@@ -57,24 +57,13 @@ const columns: ColumnsType<Term> = [
   },
 ];
 
-const TEST_DATA: Array<Term> = [
-  {
-    created: new Date(Date.now()),
-    id: "asdasdasd-asdasdasda-asdasdasdas-asdasd",
-    isActive: true,
-    label: "label 201203",
-    registrations: [],
-    termConfig: { maxRegistrationsCount: 20 },
-  },
-];
-
 type TableProps = {
   data?: Array<Term>;
   isLoading?: boolean;
 };
 
 export const TermsOverviewTable: React.FC<TableProps> = ({
-  data = TEST_DATA,
+  data,
   isLoading,
 }) => {
   const navigate = useNavigate();
