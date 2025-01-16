@@ -55,9 +55,6 @@ export const TermsOverviewFilterForm: React.FC<Props> = ({
   /**
    * Resetuje všechny filtry do jejich výchozího stavu.
    */
-  const handleClear = useCallback(() => {
-    onReset();
-  }, [onReset]);
 
   return (
     <Card
@@ -162,7 +159,7 @@ export const TermsOverviewFilterForm: React.FC<Props> = ({
               danger
               type="default"
               icon={<ClearOutlined />}
-              onClick={handleClear}
+              onClick={onReset}
               disabled={loading}
               aria-label="Resetovat filtry"
             >
