@@ -143,7 +143,7 @@ export const TermsOverviewFilterForm: React.FC<Props> = ({
           <Checkbox
             checked={filterState.isActive}
             onChange={(e) =>
-              handleInputChange("isActive", e.target.checked ? true : false)
+              handleInputChange("isActive", e.target.checked ? true : undefined)
             }
             aria-label="Filtrovat aktivní termíny"
             className="text-gray-700"
