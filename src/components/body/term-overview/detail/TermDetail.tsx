@@ -244,6 +244,15 @@ export const TermDetail: React.FC = () => {
                   />
                 </Form.Item>
               </Col>
+              <Col span={12}>
+                <Form.Item label="Created At">
+                  <Input
+                    value={moment(formData.created).format("YYYY-MM-DD HH:mm")}
+                    disabled
+                    className="bg-gray-100 cursor-not-allowed"
+                  />
+                </Form.Item>
+              </Col>
             </Row>
           )}
 
@@ -297,7 +306,8 @@ export const TermDetail: React.FC = () => {
                 />
               </Form.Item>
             </Col>
-
+          </Row>
+          <Row>
             <Col span={12}>
               <Form.Item label="Is Active">
                 <Checkbox
@@ -311,25 +321,6 @@ export const TermDetail: React.FC = () => {
             </Col>
           </Row>
 
-          {/* Creation Date (read-only in Edit Mode) */}
-          {!isAddMode && (
-            <Row gutter={16}>
-              <Col span={12}>
-                <Form.Item label="Created At">
-                  <Input
-                    value={moment(formData.created).format("YYYY-MM-DD HH:mm")}
-                    disabled
-                    className="bg-gray-100 cursor-not-allowed"
-                  />
-                </Form.Item>
-              </Col>
-            </Row>
-          )}
-
-          {/* Additional Information (optional) */}
-          {/* You can add more fields here if necessary */}
-
-          {/* Action Buttons */}
           <div className="flex justify-between mt-6">
             <Button
               onClick={handleBack}
