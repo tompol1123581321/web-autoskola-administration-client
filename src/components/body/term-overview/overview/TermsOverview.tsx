@@ -4,7 +4,7 @@ import { TermsOverviewFilterForm } from "./TermsOverviewFilterForm";
 import { TermsOverviewTable } from "./TermsOverviewTable";
 import { useNavigate } from "react-router-dom";
 import { useTermsService } from "../../../../services/useTermsService";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { Term, TermFilter } from "autoskola-web-shared-models";
 
 export const TermsOverview = () => {
@@ -18,8 +18,16 @@ export const TermsOverview = () => {
   };
 
   const loadTerms = useCallback(async () => {
-    const terms = await getTerms(filter);
-    setData(terms);
+    try {
+      setIsLoading(true);
+      const terms = await getTerms(filter);
+      setData(terms);
+    } catch (e) {
+      console.log(e);
+      setData([]);
+    } finally {
+      setIsLoading(false);
+    }
   }, [filter, getTerms]);
 
   const onReset = () => setFilter({});

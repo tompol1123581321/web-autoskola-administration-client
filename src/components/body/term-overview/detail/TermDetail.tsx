@@ -142,7 +142,7 @@ export const TermDetail: React.FC = () => {
           isActive: formData.isActive,
         });
         message.success("New term successfully created.");
-        navigate(`/app/terms/${newTerm.id}`);
+        navigate(`/app/terms/term-detail/${newTerm.id}`);
       } else {
         // Update existing Term
         const updatedTerm = await termsService.updateTerm(formData);
