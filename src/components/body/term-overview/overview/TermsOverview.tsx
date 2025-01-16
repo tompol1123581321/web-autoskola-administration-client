@@ -4,12 +4,12 @@ import { TermsOverviewFilterForm } from "./TermsOverviewFilterForm";
 import { TermsOverviewTable } from "./TermsOverviewTable";
 import { useNavigate } from "react-router-dom";
 import { useTermsService } from "../../../../services/useTermsService";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Term, TermFilter } from "autoskola-web-shared-models";
 
 export const TermsOverview = () => {
   const [data, setData] = useState<Array<Term>>([]);
-  const [filter, setFilter] = useState<TermFilter>({});
+  const [filter, setFilter] = useState<TermFilter>({ isActive: true });
   const navigate = useNavigate();
   const { getTerms } = useTermsService();
   const [isLoading, setIsLoading] = useState(false);
@@ -30,7 +30,11 @@ export const TermsOverview = () => {
     }
   }, [filter, getTerms]);
 
-  const onReset = () => setFilter({});
+  useEffect(() => {
+    loadTerms();
+  }, []);
+
+  const onReset = () => setFilter({ isActive: true });
 
   return (
     <>
