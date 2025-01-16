@@ -155,17 +155,18 @@ export const TermsOverviewFilterForm: React.FC<Props> = ({
 
         <Row justify="center" style={{ marginTop: "16px" }}>
           <Space>
-            <Button
-              className="bg-blue-600"
-              type="primary"
-              icon={<FilterFilled />}
-              htmlType="submit"
-              loading={loading}
-              onClick={onFinish}
-              aria-label="Filtrovat registrace"
-            >
-              {loading ? "Filtrovaní..." : "Filtrovat"}
-            </Button>
+            <Form.Item label={null}>
+              <Button
+                className="bg-blue-600"
+                type="primary"
+                icon={<FilterFilled />}
+                htmlType="submit"
+                loading={loading}
+                aria-label="Filtrovat registrace"
+              >
+                {loading ? "Filtrovaní..." : "Filtrovat"}
+              </Button>
+            </Form.Item>
             <Button
               danger
               type="default"
