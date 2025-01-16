@@ -1,15 +1,5 @@
 import React, { useCallback } from "react";
-import {
-  Input,
-  DatePicker,
-  Button,
-  Row,
-  Col,
-  Card,
-  Space,
-  Checkbox,
-  Alert,
-} from "antd";
+import { Input, DatePicker, Button, Checkbox, Alert } from "antd";
 import { ClearOutlined, FilterFilled } from "@ant-design/icons";
 import { TermFilter } from "autoskola-web-shared-models";
 import dayjs from "dayjs";
@@ -21,8 +11,8 @@ type Props = {
   updateFilterState: (filterState: TermFilter) => void;
   onSubmit: (filter: TermFilter) => void;
   onReset: () => void;
-  loading: boolean; // Indikuje, zda formulář právě odesílá data
-  error?: string; // Nepovinná chybová zpráva
+  loading: boolean; // Indicates if the form is submitting data
+  error?: string; // Optional error message
 };
 
 export const TermsOverviewFilterForm: React.FC<Props> = ({
@@ -34,10 +24,10 @@ export const TermsOverviewFilterForm: React.FC<Props> = ({
   error,
 }) => {
   /**
-   * Zpracovává změny v poli formuláře a aktualizuje stav filtru.
+   * Handles form field changes and updates the filter state.
    *
-   * @param key - Klíč ve stavu filtru, který se aktualizuje.
-   * @param value - Nová hodnota pro daný klíč.
+   * @param key - The key in the filter state to update.
+   * @param value - The new value for the specified key.
    */
   const handleInputChange = useCallback(
     (key: keyof TermFilter, value: any) => {
@@ -50,9 +40,9 @@ export const TermsOverviewFilterForm: React.FC<Props> = ({
   );
 
   /**
-   * Zpracovává odeslání formuláře.
+   * Handles form submission.
    *
-   * @param e - Událost odeslání formuláře.
+   * @param e - Form submission event.
    */
   const handleSubmit = useCallback(
     (e: React.FormEvent) => {
@@ -63,39 +53,39 @@ export const TermsOverviewFilterForm: React.FC<Props> = ({
   );
 
   /**
-   * Zpracovává resetování filtrů.
+   * Handles resetting the filters.
    */
   const handleReset = useCallback(() => {
     onReset();
   }, [onReset]);
 
   return (
-    <Card
-      className="filter-card"
-      style={{
-        maxWidth: "100%",
-        padding: "24px",
-        backgroundColor: "#f5f5f5",
-        borderRadius: "8px",
-      }}
+    <div
+      className="max-w-4xl mx-auto p-6 bg-gray-100 rounded-lg shadow-md"
       aria-label="Filtrovat registrace"
     >
+      {/* Display error message if exists */}
       {error && (
-        <Alert
-          message="Chyba"
-          description={error}
-          type="error"
-          showIcon
-          closable
-          style={{ marginBottom: "16px" }}
-          onClose={() => {}}
-        />
+        <div className="mb-4">
+          <Alert
+            message="Chyba"
+            description={error}
+            type="error"
+            showIcon
+            closable
+            onClose={() => {}}
+          />
+        </div>
       )}
 
-      <Row gutter={24}>
-        <Col xs={24} sm={12} md={8}>
-          <div className="ant-form-item">
-            <label className="ant-form-item-label" htmlFor="nameContains">
+      <form onSubmit={handleSubmit}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+          {/* Name Contains */}
+          <div className="flex flex-col">
+            <label
+              htmlFor="nameContains"
+              className="mb-2 font-semibold text-gray-700"
+            >
               Jméno termínu obsahuje
             </label>
             <Input
@@ -106,13 +96,16 @@ export const TermsOverviewFilterForm: React.FC<Props> = ({
                 handleInputChange("nameContains", e.target.value)
               }
               aria-label="Hledat uživatele"
+              className="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
-        </Col>
 
-        <Col xs={24} sm={16} md={8}>
-          <div className="ant-form-item">
-            <label className="ant-form-item-label" htmlFor="created">
+          {/* Created Date Range */}
+          <div className="flex flex-col">
+            <label
+              htmlFor="created"
+              className="mb-2 font-semibold text-gray-700"
+            >
               Datum vytvoření (od - do)
             </label>
             <RangePicker
@@ -138,33 +131,34 @@ export const TermsOverviewFilterForm: React.FC<Props> = ({
                 }
               }}
               aria-label="Rozmezí data registrace"
+              className="rounded-md"
             />
           </div>
-        </Col>
-      </Row>
-      <Row>
-        <Col xs={24} sm={24} md={24}>
+        </div>
+
+        {/* Active Checkbox */}
+        <div className="mt-4 flex items-center">
           <Checkbox
             checked={filterState.isActive}
             onChange={(e) =>
               handleInputChange("isActive", e.target.checked ? true : false)
             }
             aria-label="Filtrovat aktivní termíny"
+            className="text-gray-700"
           >
             Pouze aktivní termíny
           </Checkbox>
-        </Col>
-      </Row>
+        </div>
 
-      <Row justify="center" style={{ marginTop: "16px" }}>
-        <Space>
+        {/* Buttons */}
+        <div className="mt-6 flex justify-center space-x-4">
           <Button
-            className="bg-blue-600"
             type="primary"
             icon={<FilterFilled />}
-            onClick={handleSubmit}
+            htmlType="submit"
             loading={loading}
             aria-label="Filtrovat registrace"
+            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md flex items-center"
           >
             {loading ? "Filtrovaní..." : "Filtrovat"}
           </Button>
@@ -175,11 +169,12 @@ export const TermsOverviewFilterForm: React.FC<Props> = ({
             onClick={handleReset}
             disabled={loading}
             aria-label="Resetovat filtry"
+            className="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-md flex items-center"
           >
             Resetovat
           </Button>
-        </Space>
-      </Row>
-    </Card>
+        </div>
+      </form>
+    </div>
   );
 };
