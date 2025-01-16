@@ -34,7 +34,10 @@ export const TermsOverview = () => {
     loadTerms();
   }, []);
 
-  const onReset = () => setFilter({ isActive: true });
+  const onReset = () => {
+    setFilter({ isActive: true });
+    loadTerms();
+  };
 
   return (
     <>

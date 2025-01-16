@@ -1,6 +1,6 @@
 // components/body/registrations-overview/RegistrationsOverviewFilterForm.tsx
 
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect } from "react";
 import {
   Form,
   Input,
@@ -36,6 +36,10 @@ export const TermsOverviewFilterForm: React.FC<Props> = ({
   loading,
   error,
 }) => {
+  useEffect(() => {
+    console.log(filterState);
+  }, [filterState]);
+
   /**
    * Zpracovává změny v poli formuláře a aktualizuje stav filtru.
    *
@@ -51,10 +55,6 @@ export const TermsOverviewFilterForm: React.FC<Props> = ({
     },
     [filterState, updateFilterState]
   );
-
-  /**
-   * Resetuje všechny filtry do jejich výchozího stavu.
-   */
 
   return (
     <Card
@@ -87,7 +87,7 @@ export const TermsOverviewFilterForm: React.FC<Props> = ({
               <Input
                 placeholder="Jmeno termínu obsahuje"
                 allowClear
-                value={filterState.nameContains}
+                value={filterState?.nameContains}
                 onChange={(e) =>
                   handleInputChange("nameContains", e.target.value)
                 }
