@@ -1,6 +1,5 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback } from "react";
 import {
-  Form,
   Input,
   DatePicker,
   Button,
@@ -34,8 +33,6 @@ export const TermsOverviewFilterForm: React.FC<Props> = ({
   loading,
   error,
 }) => {
-  const [form] = Form.useForm();
-
   /**
    * Zpracovává změny v poli formuláře a aktualizuje stav filtru.
    *
@@ -52,30 +49,25 @@ export const TermsOverviewFilterForm: React.FC<Props> = ({
     [filterState, updateFilterState]
   );
 
-  // Synchronizace formulářových hodnot s filterState
-  useEffect(() => {
-    form.setFieldsValue({
-      nameContains: filterState.nameContains,
-      created: filterState.created
-        ? [dayjs(filterState.created.from), dayjs(filterState.created.to)]
-        : [],
-      isActive: filterState.isActive,
-    });
-  }, [filterState, form]);
+  /**
+   * Zpracovává odeslání formuláře.
+   *
+   * @param e - Událost odeslání formuláře.
+   */
+  const handleSubmit = useCallback(
+    (e: React.FormEvent) => {
+      e.preventDefault();
+      onSubmit(filterState);
+    },
+    [filterState, onSubmit]
+  );
 
-  // Zpracování odeslání formuláře
-  const onFinish = (values: any) => {
-    onSubmit({
-      nameContains: values.nameContains,
-      created: values.created
-        ? {
-            from: values.created[0].format("YYYY-MM-DD"),
-            to: values.created[1].format("YYYY-MM-DD"),
-          }
-        : undefined,
-      isActive: values.isActive,
-    });
-  };
+  /**
+   * Zpracovává resetování filtrů.
+   */
+  const handleReset = useCallback(() => {
+    onReset();
+  }, [onReset]);
 
   return (
     <Card
@@ -88,101 +80,106 @@ export const TermsOverviewFilterForm: React.FC<Props> = ({
       }}
       aria-label="Filtrovat registrace"
     >
-      <Form form={form} layout="vertical" size="large" onFinish={onFinish}>
-        {/* Zobrazení chybové zprávy, pokud existuje */}
-        {error && (
-          <Alert
-            message="Chyba"
-            description={error}
-            type="error"
-            showIcon
-            closable
-            style={{ marginBottom: "16px" }}
-            onClose={() => {}}
-          />
-        )}
+      {error && (
+        <Alert
+          message="Chyba"
+          description={error}
+          type="error"
+          showIcon
+          closable
+          style={{ marginBottom: "16px" }}
+          onClose={() => {}}
+        />
+      )}
 
-        <Row gutter={24}>
-          <Col xs={24} sm={12} md={8}>
-            <Form.Item label="Jméno termínu obsahuje" name="nameContains">
-              <Input
-                placeholder="Jméno termínu obsahuje"
-                onChange={(e) =>
-                  handleInputChange("nameContains", e.target.value)
+      <Row gutter={24}>
+        <Col xs={24} sm={12} md={8}>
+          <div className="ant-form-item">
+            <label className="ant-form-item-label" htmlFor="nameContains">
+              Jméno termínu obsahuje
+            </label>
+            <Input
+              id="nameContains"
+              placeholder="Jméno termínu obsahuje"
+              value={filterState.nameContains}
+              onChange={(e) =>
+                handleInputChange("nameContains", e.target.value)
+              }
+              aria-label="Hledat uživatele"
+            />
+          </div>
+        </Col>
+
+        <Col xs={24} sm={16} md={8}>
+          <div className="ant-form-item">
+            <label className="ant-form-item-label" htmlFor="created">
+              Datum vytvoření (od - do)
+            </label>
+            <RangePicker
+              id="created"
+              placeholder={["Od", "Do"]}
+              format="YYYY-MM-DD"
+              value={
+                filterState.created
+                  ? [
+                      dayjs(filterState.created.from),
+                      dayjs(filterState.created.to),
+                    ]
+                  : null
+              }
+              onChange={(dates) => {
+                if (dates && dates.length === 2) {
+                  handleInputChange("created", {
+                    from: dates[0]?.format("YYYY-MM-DD"),
+                    to: dates[1]?.format("YYYY-MM-DD"),
+                  });
+                } else {
+                  handleInputChange("created", undefined);
                 }
-                aria-label="Hledat uživatele"
-              />
-            </Form.Item>
-          </Col>
-
-          <Col xs={24} sm={16} md={8}>
-            <Form.Item label="Datum vytvoření (od - do)" name="created">
-              <RangePicker
-                placeholder={["Od", "Do"]}
-                format="YYYY-MM-DD"
-                onChange={(dates) => {
-                  if (dates) {
-                    handleInputChange("created", {
-                      from: dates[0]?.format("YYYY-MM-DD"),
-                      to: dates[1]?.format("YYYY-MM-DD"),
-                    });
-                  } else {
-                    handleInputChange("created", undefined);
-                  }
-                }}
-                aria-label="Rozmezí data registrace"
-              />
-            </Form.Item>
-          </Col>
-        </Row>
-        <Row>
-          <Col xs={24} sm={24} md={24}>
-            <Form.Item name="isActive" valuePropName="checked">
-              <Checkbox
-                onChange={(e) =>
-                  handleInputChange(
-                    "isActive",
-                    e.target.checked ? e.target.checked : undefined
-                  )
-                }
-                aria-label="Filtrovat aktivní termíny"
-              >
-                Pouze aktivní termíny
-              </Checkbox>
-            </Form.Item>
-          </Col>
-        </Row>
-
-        <Row justify="center" style={{ marginTop: "16px" }}>
-          <Space>
-            <Form.Item label={null}>
-              <Button
-                className="bg-blue-600"
-                type="primary"
-                icon={<FilterFilled />}
-                htmlType="submit"
-                loading={loading}
-                aria-label="Filtrovat registrace"
-              >
-                {loading ? "Filtrovaní..." : "Filtrovat"}
-              </Button>
-            </Form.Item>
-            <Button
-              danger
-              type="default"
-              icon={<ClearOutlined />}
-              onClick={() => {
-                form.resetFields();
-                onReset();
               }}
-              disabled={loading}
-              aria-label="Resetovat filtry"
-            >
-              Resetovat
-            </Button>
-          </Space>
-        </Row>
-      </Form>
+              aria-label="Rozmezí data registrace"
+            />
+          </div>
+        </Col>
+      </Row>
+      <Row>
+        <Col xs={24} sm={24} md={24}>
+          <Checkbox
+            checked={filterState.isActive}
+            onChange={(e) =>
+              handleInputChange("isActive", e.target.checked ? true : false)
+            }
+            aria-label="Filtrovat aktivní termíny"
+          >
+            Pouze aktivní termíny
+          </Checkbox>
+        </Col>
+      </Row>
+
+      <Row justify="center" style={{ marginTop: "16px" }}>
+        <Space>
+          <Button
+            className="bg-blue-600"
+            type="primary"
+            icon={<FilterFilled />}
+            onClick={handleSubmit}
+            loading={loading}
+            aria-label="Filtrovat registrace"
+          >
+            {loading ? "Filtrovaní..." : "Filtrovat"}
+          </Button>
+          <Button
+            danger
+            type="default"
+            icon={<ClearOutlined />}
+            onClick={handleReset}
+            disabled={loading}
+            aria-label="Resetovat filtry"
+          >
+            Resetovat
+          </Button>
+        </Space>
+      </Row>
     </Card>
   );
 };
