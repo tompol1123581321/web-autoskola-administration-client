@@ -161,6 +161,7 @@ export const TermsOverviewFilterForm: React.FC<Props> = ({
               icon={<FilterFilled />}
               htmlType="submit"
               loading={loading}
+              onClick={onFinish}
               aria-label="Filtrovat registrace"
             >
               {loading ? "Filtrovaní..." : "Filtrovat"}
