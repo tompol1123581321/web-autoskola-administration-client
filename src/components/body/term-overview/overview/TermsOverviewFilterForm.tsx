@@ -22,7 +22,7 @@ const { RangePicker } = DatePicker;
 type Props = {
   filterState: TermFilter;
   updateFilterState: (filterState: TermFilter) => void;
-  onSubmit: () => void;
+  onSubmit: (filter: TermFilter) => void;
   onReset: () => void;
   loading: boolean; // Indikuje, zda formulář právě odesílá data
   error?: string; // Nepovinná chybová zpráva
