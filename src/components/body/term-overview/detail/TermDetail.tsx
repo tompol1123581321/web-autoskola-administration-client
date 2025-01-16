@@ -1,6 +1,6 @@
 // src/components/body/terms-overview/TermDetail.tsx
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import {
   Input,
   Button,
@@ -55,25 +55,24 @@ export const TermDetail: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
 
-  // Fetch existing Term data if in Edit Mode
-  useEffect(() => {
-    const fetchData = async () => {
-      if (!isAddMode && id) {
-        setLoading(true);
-        try {
-          const term = await getTermById(id);
-          setFormData(term);
-          setInitialData(term);
-        } catch (err: any) {
-          setError(err.message || "Failed to load term data.");
-        } finally {
-          setLoading(false);
-        }
+  const fetchData = useCallback(async () => {
+    if (id && !isAddMode) {
+      setLoading(true);
+      try {
+        const term = await getTermById(id);
+        setFormData(term);
+        setInitialData(term);
+      } catch (err: any) {
+        setError(err.message || "Failed to load term data.");
+      } finally {
+        setLoading(false);
       }
-    };
+    }
+  }, [isAddMode, id, getTermById]);
 
+  useEffect(() => {
     fetchData();
-  }, [id, isAddMode, getTermById]);
+  }, []);
 
   // Handle form input changes
   const handleChange = (
