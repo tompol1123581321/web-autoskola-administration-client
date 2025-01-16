@@ -89,6 +89,7 @@ export const TermsOverviewFilterForm: React.FC<Props> = ({
               Jméno termínu obsahuje
             </label>
             <Input
+              height={50}
               id="nameContains"
               placeholder="Jméno termínu obsahuje"
               value={filterState.nameContains}
@@ -109,6 +110,7 @@ export const TermsOverviewFilterForm: React.FC<Props> = ({
               Datum vytvoření (od - do)
             </label>
             <RangePicker
+              height={50}
               id="created"
               placeholder={["Od", "Do"]}
               format="YYYY-MM-DD"
