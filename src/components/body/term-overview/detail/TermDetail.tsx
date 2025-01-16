@@ -340,11 +340,7 @@ export const TermDetail: React.FC = () => {
                   Uložit
                 </Button>
                 {!isAddMode && (
-                  <Button
-                    danger
-                    onClick={handleDelete}
-                    className="bg-red-500 hover:bg-red-600 text-white"
-                  >
+                  <Button danger onClick={handleDelete}>
                     Smazat
                   </Button>
                 )}
