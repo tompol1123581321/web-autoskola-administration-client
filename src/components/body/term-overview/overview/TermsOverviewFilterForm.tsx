@@ -1,5 +1,3 @@
-// components/body/registrations-overview/RegistrationsOverviewFilterForm.tsx
-
 import React, { useCallback, useEffect } from "react";
 import {
   Form,
@@ -36,9 +34,7 @@ export const TermsOverviewFilterForm: React.FC<Props> = ({
   loading,
   error,
 }) => {
-  useEffect(() => {
-    console.log(filterState);
-  }, [filterState]);
+  const [form] = Form.useForm();
 
   /**
    * Zpracovává změny v poli formuláře a aktualizuje stav filtru.
@@ -56,6 +52,31 @@ export const TermsOverviewFilterForm: React.FC<Props> = ({
     [filterState, updateFilterState]
   );
 
+  // Synchronizace formulářových hodnot s filterState
+  useEffect(() => {
+    form.setFieldsValue({
+      nameContains: filterState.nameContains,
+      created: filterState.created
+        ? [dayjs(filterState.created.from), dayjs(filterState.created.to)]
+        : [],
+      isActive: filterState.isActive,
+    });
+  }, [filterState, form]);
+
+  // Zpracování odeslání formuláře
+  const onFinish = (values: any) => {
+    onSubmit({
+      nameContains: values.nameContains,
+      created: values.created
+        ? {
+            from: values.created[0].format("YYYY-MM-DD"),
+            to: values.created[1].format("YYYY-MM-DD"),
+          }
+        : undefined,
+      isActive: values.isActive,
+    });
+  };
+
   return (
     <Card
       className="filter-card"
@@ -67,7 +88,7 @@ export const TermsOverviewFilterForm: React.FC<Props> = ({
       }}
       aria-label="Filtrovat registrace"
     >
-      <Form layout="vertical" size="large" onFinish={onSubmit}>
+      <Form form={form} layout="vertical" size="large" onFinish={onFinish}>
         {/* Zobrazení chybové zprávy, pokud existuje */}
         {error && (
           <Alert
@@ -83,11 +104,9 @@ export const TermsOverviewFilterForm: React.FC<Props> = ({
 
         <Row gutter={24}>
           <Col xs={24} sm={12} md={8}>
-            <Form.Item label="Jmeno termínu obsahuje" name="userSearch">
+            <Form.Item label="Jméno termínu obsahuje" name="nameContains">
               <Input
-                placeholder="Jmeno termínu obsahuje"
-                allowClear
-                value={filterState?.nameContains}
+                placeholder="Jméno termínu obsahuje"
                 onChange={(e) =>
                   handleInputChange("nameContains", e.target.value)
                 }
@@ -101,14 +120,6 @@ export const TermsOverviewFilterForm: React.FC<Props> = ({
               <RangePicker
                 placeholder={["Od", "Do"]}
                 format="YYYY-MM-DD"
-                value={
-                  filterState.created
-                    ? [
-                        dayjs(filterState.created.from),
-                        dayjs(filterState.created.to),
-                      ]
-                    : undefined
-                }
                 onChange={(dates) => {
                   if (dates) {
                     handleInputChange("created", {
@@ -126,9 +137,8 @@ export const TermsOverviewFilterForm: React.FC<Props> = ({
         </Row>
         <Row>
           <Col xs={24} sm={24} md={24}>
-            <Form.Item>
+            <Form.Item name="isActive" valuePropName="checked">
               <Checkbox
-                checked={filterState.isActive}
                 onChange={(e) =>
                   handleInputChange(
                     "isActive",
@@ -159,7 +169,10 @@ export const TermsOverviewFilterForm: React.FC<Props> = ({
               danger
               type="default"
               icon={<ClearOutlined />}
-              onClick={onReset}
+              onClick={() => {
+                form.resetFields();
+                onReset();
+              }}
               disabled={loading}
               aria-label="Resetovat filtry"
             >
