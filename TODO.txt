@@ -1,0 +1,7 @@
+- TERMS -> Improve add and edit layout
+- Create generic useTable hook - Use in terms,registrations,history
+- Registrations (connect to api)
+- extract logic hook from details and overviews
+- implement web settings tab
+- improve buttons color (login, details)
+- ceske textace
