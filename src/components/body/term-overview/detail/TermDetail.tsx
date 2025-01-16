@@ -1,6 +1,6 @@
 // src/components/body/terms-overview/TermDetail.tsx
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   Input,
   Button,
@@ -23,10 +23,10 @@ import { useTermsService } from "../../../../services/useTermsService";
 export const TermDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const termsService = useTermsService();
+  const { addTerm, getTermById, updateTerm, deleteTerm } = useTermsService();
 
   // Determine if the form is in Add Mode or Edit Mode
-  const isAddMode = id === "add";
+  const isAddMode = useMemo(() => id === "add", [id]);
 
   // State for form data
   const [formData, setFormData] = useState<Term>(
@@ -61,7 +61,7 @@ export const TermDetail: React.FC = () => {
       if (!isAddMode && id) {
         setLoading(true);
         try {
-          const term = await termsService.getTermById(id);
+          const term = await getTermById(id);
           setFormData(term);
           setInitialData(term);
         } catch (err: any) {
@@ -73,7 +73,7 @@ export const TermDetail: React.FC = () => {
     };
 
     fetchData();
-  }, [id, isAddMode, termsService]);
+  }, [id, isAddMode, getTermById]);
 
   // Handle form input changes
   const handleChange = (
@@ -134,7 +134,7 @@ export const TermDetail: React.FC = () => {
     try {
       if (isAddMode) {
         // Create a new Term
-        const newTerm = await termsService.addTerm({
+        const newTerm = await addTerm({
           label: formData.label,
           termConfig: {
             maxRegistrationsCount: formData.termConfig.maxRegistrationsCount,
@@ -145,7 +145,7 @@ export const TermDetail: React.FC = () => {
         navigate(`/app/terms/term-detail/${newTerm.id}`);
       } else {
         // Update existing Term
-        const updatedTerm = await termsService.updateTerm(formData);
+        const updatedTerm = await updateTerm(formData);
         message.success("Term successfully updated.");
         setInitialData(updatedTerm);
         setIsChanged(false);
@@ -162,7 +162,7 @@ export const TermDetail: React.FC = () => {
     if (!formData.id) return;
     setLoading(true);
     try {
-      await termsService.deleteTerm(formData.id);
+      await deleteTerm(formData.id);
       message.success("Term successfully deleted.");
       navigate("/app/terms");
     } catch (err: any) {
