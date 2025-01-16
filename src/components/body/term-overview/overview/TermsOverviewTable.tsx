@@ -13,14 +13,18 @@ const columns: ColumnsType<Term> = [
     dataIndex: "id", // Klíč pro data
     key: "id", // Unikátní klíč
     width: 200, // Šířka sloupce
-    className: "text-center",
+  },
+  {
+    title: "Datum vytvoření", // ID
+    dataIndex: "created", // Klíč pro data
+    key: "created", // Unikátní klíč
+    width: 100, // Šířka sloupce
   },
   {
     title: "Název", // First Name
     dataIndex: "label",
     key: "label",
     width: 100,
-    className: "font-medium",
   },
 
   {
@@ -31,7 +35,6 @@ const columns: ColumnsType<Term> = [
       return value ? "Aktivní" : "Neaktivní";
     },
     width: 100,
-    className: "text-center",
   },
   {
     title: "Maximální počet registrací", // Phone Number
@@ -42,7 +45,6 @@ const columns: ColumnsType<Term> = [
     },
     key: "termConfig",
     width: 100,
-    className: "text-center",
   },
   {
     title: "Aktuální počet registrací", // Phone Number
@@ -53,7 +55,6 @@ const columns: ColumnsType<Term> = [
     },
     key: "registrations",
     width: 100,
-    className: "text-center",
   },
 ];
 

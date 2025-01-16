@@ -100,10 +100,7 @@ export const TermsOverviewFilterForm: React.FC<Props> = ({
           </Col>
 
           <Col xs={24} sm={16} md={8}>
-            <Form.Item
-              label="Datum registrace (od - do)"
-              name="registrationDate"
-            >
+            <Form.Item label="Datum vytvoření (od - do)" name="created">
               <RangePicker
                 placeholder={["Od", "Do"]}
                 format="YYYY-MM-DD"
