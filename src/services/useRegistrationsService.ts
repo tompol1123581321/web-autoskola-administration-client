@@ -1,3 +1,5 @@
+// src/services/useRegistrationsService.ts
+
 import { useCallback } from "react";
 import {
   RegistrationFormData,
@@ -19,6 +21,7 @@ interface RegistrationService {
     registration: RegistrationFormData
   ) => Promise<RegistrationFormData>;
   getRegistrationOptions: () => Promise<TermOption[]>;
+  getRegistrationById: (id: string) => Promise<RegistrationFormData>;
 }
 
 export const useRegistrationsService = (): RegistrationService => {
@@ -149,11 +152,37 @@ export const useRegistrationsService = (): RegistrationService => {
     [apiFetch]
   );
 
+  // 6. Get registration by ID
+  const getRegistrationById = useCallback(
+    async (id: string): Promise<RegistrationFormData> => {
+      const url = `${COMMON_ADMIN_API}/api/registrations/${id}`;
+
+      const response = await apiFetch(url, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(
+          errorData.error || "Failed to fetch registration by ID."
+        );
+      }
+
+      const data = await response.json();
+      return data; // Adjust based on actual response structure
+    },
+    [apiFetch]
+  );
+
   return {
     getRegistrations,
     deleteRegistration,
     createRegistration,
     updateRegistration,
     getRegistrationOptions,
+    getRegistrationById,
   };
 };

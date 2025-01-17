@@ -1,206 +1,240 @@
-import React, { useState, useEffect } from "react";
+// src/components/RegistrationDetail.tsx
+
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Input,
   Button,
   DatePicker,
   message,
-  Form,
-  Row,
-  Col,
-  Checkbox,
   Spin,
   Alert,
   Select,
+  Popconfirm,
 } from "antd";
-import { RegistrationFormData } from "autoskola-web-shared-models";
+import { RegistrationFormData, TermOption } from "autoskola-web-shared-models";
 import moment from "moment";
 import { useParams, useNavigate } from "react-router-dom";
-import { CheckboxChangeEvent } from "antd/es/checkbox";
+import { useRegistrationsService } from "../../../../services/useRegistrationsService";
+import { SaveOutlined, DeleteOutlined } from "@ant-design/icons";
 
 const { TextArea } = Input;
 const { Option } = Select;
 
-// Mock data for active terms
-const activeTerms = ["Březen", "Červen", "Září", "Prosinec"];
-
 export const RegistrationDetail: React.FC = () => {
+  const {
+    createRegistration,
+    deleteRegistration,
+    updateRegistration,
+    getRegistrationById,
+    getRegistrationOptions,
+  } = useRegistrationsService();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
-  // Rozlišení režimu: přidání nové registrace vs. úprava existující
   const isAddMode = id === "add";
 
-  const onDelete = (id: string) => {
-    console.log("Delete registration with ID:", id);
-    message.success("Registrace byla úspěšně smazána.");
-    navigate("/registrations"); // Po smazání se vrátí na přehled registrací
-  };
-
-  const onSave = (updatedData: RegistrationFormData) => {
-    if (isAddMode) {
-      // Logika pro vytvoření nové registrace
-      console.log("Create new registration data:", updatedData);
-      message.success("Nová registrace byla úspěšně vytvořena.");
-      // Implementuj logiku pro vytvoření registrace v backendu
-    } else {
-      // Logika pro aktualizaci existující registrace
-      console.log("Update registration data:", updatedData);
-      message.success("Registrace byla úspěšně aktualizována.");
-      // Implementuj logiku pro aktualizaci registrace v backendu
-    }
-  };
-
-  const onBack = () => {
-    navigate("/app");
-  };
-
-  // Předpokládaná data získaná z backendu (pro editaci)
-  const initialData: RegistrationFormData = {
-    email: "jan.novak@example.com",
-    firstName: "Jan",
-    id: "123", // Předpokládáme, že ID je string. Pokud je číslo, uprav typ v RegistrationFormData
-    lastName: "Novák",
-    notes: "Potřebuje extra pomoc",
-    phoneNumber: "555-1234",
+  const [termOptions, setTermOptions] = useState<Array<TermOption>>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [formData, setFormData] = useState<RegistrationFormData>({
+    email: "",
+    firstName: "",
+    id: "", // Při přidávání může být ID prázdné nebo generované backendem
+    lastName: "",
+    notes: "",
+    phoneNumber: "",
     registrationDate: new Date(),
-    termId: "Březen",
-  };
-
-  // Local state for form values
-  const [formData, setFormData] = useState<RegistrationFormData>(
-    isAddMode
-      ? {
-          email: "",
-          firstName: "",
-          id: "", // Při přidávání může být ID prázdné nebo generované backendem
-          lastName: "",
-          notes: "",
-          phoneNumber: "",
-          registrationDate: new Date(),
-          termId: "",
-        }
-      : {
-          ...initialData,
-          registrationDate: moment(initialData.registrationDate).toDate(), // Initialize date with moment
-        }
+    termId: "",
+  });
+  const [initialData, setInitialData] = useState<RegistrationFormData | null>(
+    null
   );
-  const [isChanged, setIsChanged] = useState(false);
-  const [isEditable, setIsEditable] = useState(isAddMode); // Při přidávání je formulář editovatelný od začátku
-  const [loading, setLoading] = useState<boolean>(false);
+  const [isChanged, setIsChanged] = useState<boolean>(false);
+  const [isEditable, setIsEditable] = useState<boolean>(isAddMode); // Při přidávání je formulář editovatelný od začátku
   const [error, setError] = useState<string>("");
 
-  // Effect to fetch data from backend (simulace)
-  useEffect(() => {
-    const fetchData = async () => {
-      if (!isAddMode && id) {
-        setLoading(true);
-        try {
-          // Simulace načítání dat
-          // Nahraď tuto část skutečným API voláním
-          // Např. const data = await getRegistrationById(id);
-          // setFormData({
-          //   ...data,
-          //   registrationDate: moment(data.registrationDate).toDate(),
-          // });
-          // Pro demo účely necháme data jako initialData
-        } catch (err: any) {
-          setError(err.message || "Nepodařilo se načíst data registrace.");
-        } finally {
-          setLoading(false);
-        }
+  // Načtení termínů z backendu
+  const loadTermOptions = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      const options = await getRegistrationOptions();
+      setTermOptions(options);
+    } catch (error: any) {
+      console.error("Chyba při načítání termínů:", error);
+      setError(error.message || "Nepodařilo se načíst termíny.");
+    } finally {
+      setIsLoading(false);
+    }
+  }, [getRegistrationOptions]);
+
+  // Načtení detailů registrace (pokud není v režimu přidávání)
+  const loadRegistration = useCallback(async () => {
+    if (!isAddMode && id) {
+      try {
+        setIsLoading(true);
+        const data = await getRegistrationById(id);
+        setFormData({
+          ...data,
+          registrationDate: moment(data.registrationDate).toDate(),
+        });
+        setInitialData({
+          ...data,
+          registrationDate: moment(data.registrationDate).toDate(),
+        });
+      } catch (error: any) {
+        console.error("Chyba při načítání registrace:", error);
+        setError(error.message || "Nepodařilo se načíst data registrace.");
+      } finally {
+        setIsLoading(false);
       }
-    };
+    }
+  }, [id, isAddMode, getRegistrationById]);
 
-    fetchData();
-  }, [id, isAddMode]);
+  useEffect(() => {
+    loadTermOptions();
+    loadRegistration();
+  }, [loadTermOptions, loadRegistration]);
 
-  // Handle form value changes
+  // Zpracování změn ve vstupních polích
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    trackChanges({ ...formData, [name]: value });
+    setIsChanged(true);
   };
 
-  // Handle select change for termId
+  // Zpracování změny v selectu pro termId
   const handleTermChange = (value: string) => {
     setFormData((prev) => ({ ...prev, termId: value }));
-    trackChanges({ ...formData, termId: value });
+    setIsChanged(true);
   };
 
-  // Handle date change
+  // Zpracování změny data registrace
   const handleDateChange = (date: moment.Moment | null) => {
     if (date) {
       setFormData((prev) => ({ ...prev, registrationDate: date.toDate() }));
-      trackChanges({ ...formData, registrationDate: date.toDate() });
-    } else {
-      setFormData((prev) => ({
-        ...prev,
-        registrationDate: initialData.registrationDate,
-      }));
-      trackChanges({
-        ...formData,
-        registrationDate: initialData.registrationDate,
-      });
+      setIsChanged(true);
     }
   };
 
-  // Track if any change is made to formData
-  const trackChanges = (updatedData: RegistrationFormData) => {
-    const hasChanged = Object.keys(updatedData).some(
-      (key) =>
-        key !== "id" &&
-        updatedData[key as keyof RegistrationFormData] !==
-          (isAddMode
-            ? "" // Při přidávání porovnej s prázdným řetězcem
-            : initialData[key as keyof RegistrationFormData])
-    );
-    setIsChanged(hasChanged);
-  };
+  // Sledování změn pro povolení tlačítka Uložit
+  useEffect(() => {
+    if (initialData) {
+      const hasChanged = Object.keys(formData).some((key) => {
+        if (key === "registrationDate") {
+          return (
+            new Date(
+              formData[key as keyof RegistrationFormData] as Date
+            ).getTime() !==
+            new Date(
+              initialData[key as keyof RegistrationFormData] as Date
+            ).getTime()
+          );
+        }
+        return (
+          formData[key as keyof RegistrationFormData] !==
+          initialData[key as keyof RegistrationFormData]
+        );
+      });
+      setIsChanged(hasChanged);
+    } else if (isAddMode) {
+      const isAnyFieldFilled = Object.values(formData).some(
+        (value) => value !== "" && value !== null
+      );
+      setIsChanged(isAnyFieldFilled);
+    }
+  }, [formData, initialData, isAddMode]);
 
-  // Handle save button click
-  const handleSave = () => {
-    if (!isChanged && !isAddMode) {
-      message.warning("Nebyla detekována žádná změna.");
+  // Ošetření uložení formuláře
+  const handleSave = async () => {
+    // Validace: zkontrolovat, že všechna povinná pole jsou vyplněna
+    if (
+      !formData.firstName.trim() ||
+      !formData.lastName.trim() ||
+      !formData.phoneNumber.trim() ||
+      !formData.email.trim() ||
+      !formData.termId ||
+      !formData.registrationDate
+    ) {
+      message.error("Prosím, vyplňte všechna povinná pole.");
       return;
     }
-    onSave(formData);
-    setIsEditable(false);
-    setIsChanged(false);
-  };
 
-  // Handle delete button click
-  const handleDelete = () => {
-    onDelete(formData.id);
-  };
+    // Validace emailu
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      message.error("Prosím, zadejte platný email.");
+      return;
+    }
 
-  // Handle edit checkbox change
-  const handleEditToggle = (e: CheckboxChangeEvent) => {
-    setIsEditable(e.target.checked);
-    if (!e.target.checked) {
+    setIsLoading(true);
+    try {
       if (isAddMode) {
-        setFormData({
-          email: "",
-          firstName: "",
-          id: "add",
-          lastName: "",
-          notes: "",
-          phoneNumber: "",
-          registrationDate: new Date(),
-          termId: "",
+        // Vytvoření nové registrace
+        const newRegistration = await createRegistration({
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          phoneNumber: formData.phoneNumber,
+          email: formData.email,
+          notes: formData.notes,
+          termId: formData.termId,
+          registrationDate: formData.registrationDate,
         });
+        message.success("Nová registrace byla úspěšně vytvořena.");
+        navigate(`/registrations/${newRegistration.id}`);
       } else {
-        setFormData({
-          ...initialData,
-          registrationDate: moment(initialData.registrationDate).toDate(),
+        // Aktualizace existující registrace
+        const updatedRegistration = await updateRegistration(formData);
+        message.success("Registrace byla úspěšně aktualizována.");
+        setInitialData({
+          ...updatedRegistration,
+          registrationDate: moment(
+            updatedRegistration.registrationDate
+          ).toDate(),
         });
       }
+      setIsChanged(false);
+    } catch (error: any) {
+      console.error("Chyba při ukládání registrace:", error);
+      message.error(error.message || "Nepodařilo se uložit registraci.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Ošetření smazání registrace
+  const handleDelete = async () => {
+    if (!isAddMode && formData.id && formData.termId) {
+      try {
+        setIsLoading(true);
+        await deleteRegistration(formData.termId, formData.id);
+        message.success("Registrace byla úspěšně smazána.");
+        navigate("/registrations"); // Po smazání se vrátí na přehled registrací
+      } catch (error: any) {
+        console.error("Chyba při mazání registrace:", error);
+        message.error(error.message || "Nepodařilo se smazat registraci.");
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  };
+
+  // Ošetření tlačítka Zpět
+  const handleBack = () => {
+    navigate("/registrations");
+  };
+
+  // Ošetření přepínače Upravit
+  const handleEditToggle = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { checked } = e.target;
+    setIsEditable(checked);
+    if (!checked && initialData) {
+      setFormData(initialData);
       setIsChanged(false);
     }
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
         <Spin tip="Načítání registrace..." size="large" />
@@ -231,191 +265,226 @@ export const RegistrationDetail: React.FC = () => {
 
         {/* Checkbox pro přepínání mezi čtením a editací (skrytý v režimu přidávání) */}
         {!isAddMode && (
-          <div className="flex justify-end mb-4">
-            <Checkbox
+          <div className="flex items-center justify-end mb-4">
+            <label htmlFor="edit-toggle" className="mr-2 text-sm">
+              Upravit
+            </label>
+            <input
+              type="checkbox"
+              id="edit-toggle"
               checked={isEditable}
               onChange={handleEditToggle}
-              className="text-sm"
-            >
-              Upravit
-            </Checkbox>
+              className="form-checkbox h-4 w-4 text-blue-600"
+              aria-label="Přepnout do režimu editace"
+            />
           </div>
         )}
 
-        <Form layout="vertical">
-          {/* První řádek */}
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item label="ID">
-                <Input
-                  value={formData.id}
-                  disabled
-                  className={`bg-gray-100 cursor-not-allowed ${
-                    isAddMode ? "bg-white" : ""
-                  }`}
-                  placeholder={isAddMode ? "Nová registrace" : ""}
-                />
-              </Form.Item>
-            </Col>
-          </Row>
+        <form className="space-y-6">
+          {/* ID Registrace */}
+          {!isAddMode && (
+            <div>
+              <label
+                htmlFor="id"
+                className="block text-sm font-medium text-gray-700"
+              >
+                ID
+              </label>
+              <input
+                type="text"
+                id="id"
+                name="id"
+                value={formData.id}
+                disabled
+                className="mt-1 block w-full bg-gray-100 border border-gray-300 rounded-md shadow-sm cursor-not-allowed"
+                aria-disabled="true"
+                placeholder="ID registrace"
+              />
+            </div>
+          )}
 
-          {/* Druhý řádek */}
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item
-                label="Jméno"
-                rules={[{ required: true, message: "Jméno je povinné" }]}
+          {/* Jméno a Příjmení */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label
+                htmlFor="firstName"
+                className="block text-sm font-medium text-gray-700"
               >
-                <Input
-                  name="firstName"
-                  value={formData.firstName}
-                  onChange={handleChange}
-                  disabled={!isEditable && !isAddMode}
-                  className={`border ${
-                    isEditable || isAddMode
-                      ? "border-gray-300"
-                      : "border-gray-100 cursor-not-allowed"
-                  } rounded-md`}
-                />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item
-                label="Příjmení"
-                rules={[{ required: true, message: "Příjmení je povinné" }]}
+                Jméno<span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                id="firstName"
+                name="firstName"
+                value={formData.firstName}
+                onChange={handleChange}
+                disabled={!isEditable && !isAddMode}
+                className={`mt-1 block w-full ${
+                  isEditable || isAddMode
+                    ? "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                    : "bg-gray-100 border-gray-100 cursor-not-allowed"
+                } rounded-md shadow-sm`}
+                required
+                aria-required="true"
+                placeholder="Zadejte jméno"
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="lastName"
+                className="block text-sm font-medium text-gray-700"
               >
-                <Input
-                  name="lastName"
-                  value={formData.lastName}
-                  onChange={handleChange}
-                  disabled={!isEditable && !isAddMode}
-                  className={`border ${
-                    isEditable || isAddMode
-                      ? "border-gray-300"
-                      : "border-gray-100 cursor-not-allowed"
-                  } rounded-md`}
-                />
-              </Form.Item>
-            </Col>
-          </Row>
+                Příjmení<span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                id="lastName"
+                name="lastName"
+                value={formData.lastName}
+                onChange={handleChange}
+                disabled={!isEditable && !isAddMode}
+                className={`mt-1 block w-full ${
+                  isEditable || isAddMode
+                    ? "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                    : "bg-gray-100 border-gray-100 cursor-not-allowed"
+                } rounded-md shadow-sm`}
+                required
+                aria-required="true"
+                placeholder="Zadejte příjmení"
+              />
+            </div>
+          </div>
 
-          {/* Třetí řádek */}
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item
-                label="Telefonní číslo"
-                rules={[
-                  { required: true, message: "Telefonní číslo je povinné" },
-                ]}
+          {/* Telefonní Číslo a Email */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label
+                htmlFor="phoneNumber"
+                className="block text-sm font-medium text-gray-700"
               >
-                <Input
-                  name="phoneNumber"
-                  value={formData.phoneNumber}
-                  onChange={handleChange}
-                  disabled={!isEditable && !isAddMode}
-                  className={`border ${
-                    isEditable || isAddMode
-                      ? "border-gray-300"
-                      : "border-gray-100 cursor-not-allowed"
-                  } rounded-md`}
-                />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item
-                label="Email"
-                rules={[
-                  { required: true, message: "Email je povinný" },
-                  { type: "email", message: "Zadejte platný email" },
-                ]}
+                Telefonní číslo<span className="text-red-500">*</span>
+              </label>
+              <input
+                type="tel"
+                id="phoneNumber"
+                name="phoneNumber"
+                value={formData.phoneNumber}
+                onChange={handleChange}
+                disabled={!isEditable && !isAddMode}
+                className={`mt-1 block w-full ${
+                  isEditable || isAddMode
+                    ? "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                    : "bg-gray-100 border-gray-100 cursor-not-allowed"
+                } rounded-md shadow-sm`}
+                required
+                aria-required="true"
+                placeholder="Zadejte telefonní číslo"
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700"
               >
-                <Input
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  disabled={!isEditable && !isAddMode}
-                  className={`border ${
-                    isEditable || isAddMode
-                      ? "border-gray-300"
-                      : "border-gray-100 cursor-not-allowed"
-                  } rounded-md`}
-                />
-              </Form.Item>
-            </Col>
-          </Row>
+                Email<span className="text-red-500">*</span>
+              </label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                disabled={!isEditable && !isAddMode}
+                className={`mt-1 block w-full ${
+                  isEditable || isAddMode
+                    ? "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                    : "bg-gray-100 border-gray-100 cursor-not-allowed"
+                } rounded-md shadow-sm`}
+                required
+                aria-required="true"
+                placeholder="Zadejte email"
+              />
+            </div>
+          </div>
 
-          {/* Čtvrtý řádek */}
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item
-                label="Termín"
-                rules={[{ required: true, message: "Termín je povinný" }]}
+          {/* Termín a Datum Registrace */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label
+                htmlFor="termId"
+                className="block text-sm font-medium text-gray-700"
               >
-                <Select
-                  value={formData.termId}
-                  onChange={handleTermChange}
-                  disabled={!isEditable && !isAddMode}
-                  className={`border ${
-                    isEditable || isAddMode
-                      ? "border-gray-300"
-                      : "border-gray-100 cursor-not-allowed"
-                  } rounded-md w-full`}
-                  placeholder="Vyberte termín"
-                >
-                  {activeTerms.map((term) => (
-                    <Option key={term} value={term}>
-                      {term}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item
-                label="Datum registrace"
-                rules={[
-                  { required: true, message: "Datum registrace je povinné" },
-                ]}
+                Termín<span className="text-red-500">*</span>
+              </label>
+              <Select
+                id="termId"
+                value={formData.termId}
+                onChange={handleTermChange}
+                disabled={!isEditable && !isAddMode}
+                className="mt-1 block w-full"
+                placeholder="Vyberte termín"
+                aria-required="true"
               >
-                <DatePicker
-                  value={moment(formData.registrationDate)}
-                  onChange={handleDateChange}
-                  format="YYYY-MM-DD"
-                  disabled={!isEditable && !isAddMode}
-                  className={`border ${
-                    isEditable || isAddMode
-                      ? "border-gray-300"
-                      : "border-gray-100 cursor-not-allowed"
-                  } rounded-md w-full`}
-                />
-              </Form.Item>
-            </Col>
-          </Row>
+                {termOptions.map((term) => (
+                  <Option key={term.id} value={term.id}>
+                    {term.label}
+                  </Option>
+                ))}
+              </Select>
+            </div>
+            <div>
+              <label
+                htmlFor="registrationDate"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Datum registrace<span className="text-red-500">*</span>
+              </label>
+              <DatePicker
+                id="registrationDate"
+                name="registrationDate"
+                value={moment(formData.registrationDate)}
+                onChange={handleDateChange}
+                format="YYYY-MM-DD"
+                disabled={!isEditable && !isAddMode}
+                className={`mt-1 block w-full ${
+                  isEditable || isAddMode
+                    ? "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                    : "bg-gray-100 border-gray-100 cursor-not-allowed"
+                } rounded-md shadow-sm`}
+                required
+                aria-required="true"
+              />
+            </div>
+          </div>
 
-          {/* Pátý řádek */}
-          <Row gutter={16}>
-            <Col span={24}>
-              <Form.Item label="Poznámky">
-                <TextArea
-                  name="notes"
-                  value={formData.notes}
-                  onChange={handleChange}
-                  rows={4}
-                  disabled={!isEditable && !isAddMode}
-                  className={`border ${
-                    isEditable || isAddMode
-                      ? "border-gray-300"
-                      : "border-gray-100 cursor-not-allowed"
-                  } rounded-md`}
-                />
-              </Form.Item>
-            </Col>
-          </Row>
+          {/* Poznámky */}
+          <div>
+            <label
+              htmlFor="notes"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Poznámky
+            </label>
+            <TextArea
+              id="notes"
+              name="notes"
+              value={formData.notes}
+              onChange={handleChange}
+              rows={4}
+              disabled={!isEditable && !isAddMode}
+              className={`mt-1 block w-full ${
+                isEditable || isAddMode
+                  ? "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                  : "bg-gray-100 border-gray-100 cursor-not-allowed"
+              } rounded-md shadow-sm`}
+              placeholder="Zadejte poznámky"
+            />
+          </div>
 
           {/* Tlačítka */}
           <div className="flex justify-between mt-6">
             <Button
-              onClick={onBack}
+              onClick={handleBack}
               className="bg-gray-300 hover:bg-gray-400 text-white"
             >
               Zpět
@@ -423,30 +492,37 @@ export const RegistrationDetail: React.FC = () => {
             {(isEditable || isAddMode) && (
               <div className="flex space-x-4">
                 <Button
-                  type="dashed"
                   onClick={handleSave}
                   disabled={!isChanged && !isAddMode}
                   className={`${
                     isChanged || isAddMode
                       ? "bg-blue-500 hover:bg-blue-600"
                       : "bg-blue-300 cursor-not-allowed"
-                  } text-white`}
+                  } text-white px-4 py-2 rounded-md flex items-center`}
+                  icon={<SaveOutlined />}
                 >
                   Uložit
                 </Button>
                 {!isAddMode && (
-                  <Button
-                    danger
-                    onClick={handleDelete}
-                    className="bg-red-200 hover:bg-red-600 text-white"
+                  <Popconfirm
+                    title="Opravdu chcete smazat tuto registraci?"
+                    onConfirm={handleDelete}
+                    okText="Ano"
+                    cancelText="Ne"
                   >
-                    Smazat
-                  </Button>
+                    <Button
+                      danger
+                      className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md flex items-center"
+                      icon={<DeleteOutlined />}
+                    >
+                      Smazat
+                    </Button>
+                  </Popconfirm>
                 )}
               </div>
             )}
           </div>
-        </Form>
+        </form>
       </div>
     </div>
   );
