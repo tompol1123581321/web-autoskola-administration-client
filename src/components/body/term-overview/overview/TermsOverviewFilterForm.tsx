@@ -119,7 +119,7 @@ export const TermsOverviewFilterForm: React.FC<Props> = ({
                 }
               }}
               aria-label="Rozmezí data registrace"
-              className="rounded-md"
+              className="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
         </div>
@@ -139,6 +139,7 @@ export const TermsOverviewFilterForm: React.FC<Props> = ({
 
         <div className="mt-6 flex justify-center space-x-4">
           <Button
+            className="bg-blue-600 hover:bg-blue-400"
             type="primary"
             icon={<FilterFilled />}
             htmlType="submit"

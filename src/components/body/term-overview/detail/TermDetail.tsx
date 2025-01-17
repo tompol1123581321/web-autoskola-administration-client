@@ -322,13 +322,13 @@ export const TermDetail: React.FC = () => {
           </Row>
 
           <div className="flex justify-between mt-6">
-            <Button type="primary" onClick={handleBack}>
+            <Button type="dashed" onClick={handleBack}>
               Zpět
             </Button>
             {(isEditable || isAddMode) && (
               <div className="flex space-x-4">
                 <Button
-                  type="primary"
+                  type="dashed"
                   onClick={handleSave}
                   disabled={!isChanged && !isAddMode}
                   className={`${

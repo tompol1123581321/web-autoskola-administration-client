@@ -423,7 +423,7 @@ export const RegistrationDetail: React.FC = () => {
             {(isEditable || isAddMode) && (
               <div className="flex space-x-4">
                 <Button
-                  type="primary"
+                  type="dashed"
                   onClick={handleSave}
                   disabled={!isChanged && !isAddMode}
                   className={`${

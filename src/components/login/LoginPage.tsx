@@ -94,7 +94,7 @@ export const LoginPage: React.FC = () => {
 
             {/* Login Button */}
             <Button
-              type="primary"
+              type="dashed"
               size="large"
               block
               onClick={handleLogin}
