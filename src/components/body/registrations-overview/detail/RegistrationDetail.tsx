@@ -181,7 +181,7 @@ export const RegistrationDetail: React.FC = () => {
           registrationDate: formData.registrationDate,
         });
         message.success("Nová registrace byla úspěšně vytvořena.");
-        navigate(`/registrations/${newRegistration.id}`);
+        navigate(`/registration-detail/${newRegistration.id}`);
       } else {
         // Aktualizace existující registrace
         const updatedRegistration = await updateRegistration(formData);
@@ -209,7 +209,7 @@ export const RegistrationDetail: React.FC = () => {
         setIsLoading(true);
         await deleteRegistration(formData.termId, formData.id);
         message.success("Registrace byla úspěšně smazána.");
-        navigate("/registrations"); // Po smazání se vrátí na přehled registrací
+        navigate("/app"); // Po smazání se vrátí na přehled registrací
       } catch (error: any) {
         console.error("Chyba při mazání registrace:", error);
         message.error(error.message || "Nepodařilo se smazat registraci.");
@@ -221,7 +221,7 @@ export const RegistrationDetail: React.FC = () => {
 
   // Ošetření tlačítka Zpět
   const handleBack = () => {
-    navigate("/registrations");
+    navigate("/app");
   };
 
   // Ošetření přepínače Upravit
