@@ -23,12 +23,6 @@ export const TermsOverviewFilterForm: React.FC<Props> = ({
   loading,
   error,
 }) => {
-  /**
-   * Handles form field changes and updates the filter state.
-   *
-   * @param key - The key in the filter state to update.
-   * @param value - The new value for the specified key.
-   */
   const handleInputChange = useCallback(
     (key: keyof TermFilter, value: any) => {
       updateFilterState({
@@ -39,11 +33,6 @@ export const TermsOverviewFilterForm: React.FC<Props> = ({
     [filterState, updateFilterState]
   );
 
-  /**
-   * Handles form submission.
-   *
-   * @param e - Form submission event.
-   */
   const handleSubmit = useCallback(
     (e: React.FormEvent) => {
       e.preventDefault();
@@ -52,9 +41,6 @@ export const TermsOverviewFilterForm: React.FC<Props> = ({
     [filterState, onSubmit]
   );
 
-  /**
-   * Handles resetting the filters.
-   */
   const handleReset = useCallback(() => {
     onReset();
   }, [onReset]);
@@ -64,7 +50,6 @@ export const TermsOverviewFilterForm: React.FC<Props> = ({
       className="max-w-4xl mx-auto p-6 bg-gray-100 rounded-lg shadow-md"
       aria-label="Filtrovat registrace"
     >
-      {/* Display error message if exists */}
       {error && (
         <div className="mb-4">
           <Alert
@@ -83,7 +68,6 @@ export const TermsOverviewFilterForm: React.FC<Props> = ({
         onSubmit={handleSubmit}
       >
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-          {/* Name Contains */}
           <div className="flex flex-col">
             <label
               htmlFor="nameContains"
@@ -104,7 +88,6 @@ export const TermsOverviewFilterForm: React.FC<Props> = ({
             />
           </div>
 
-          {/* Created Date Range */}
           <div className="flex flex-col">
             <label
               htmlFor="created"
@@ -141,7 +124,6 @@ export const TermsOverviewFilterForm: React.FC<Props> = ({
           </div>
         </div>
 
-        {/* Active Checkbox */}
         <div className="mt-4 flex items-center">
           <Checkbox
             checked={filterState.isActive}
@@ -155,7 +137,6 @@ export const TermsOverviewFilterForm: React.FC<Props> = ({
           </Checkbox>
         </div>
 
-        {/* Buttons */}
         <div className="mt-6 flex justify-center space-x-4">
           <Button
             type="primary"
@@ -163,18 +144,16 @@ export const TermsOverviewFilterForm: React.FC<Props> = ({
             htmlType="submit"
             loading={loading}
             aria-label="Filtrovat registrace"
-            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md flex items-center"
           >
             {loading ? "Filtrovaní..." : "Filtrovat"}
           </Button>
           <Button
             danger
-            type="default"
+            type="primary"
             icon={<ClearOutlined />}
             onClick={handleReset}
             disabled={loading}
             aria-label="Resetovat filtry"
-            className="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-md flex items-center"
           >
             Resetovat
           </Button>

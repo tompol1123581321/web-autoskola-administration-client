@@ -322,7 +322,7 @@ export const TermDetail: React.FC = () => {
           </Row>
 
           <div className="flex justify-between mt-6">
-            <Button type="link" onClick={handleBack}>
+            <Button type="primary" onClick={handleBack}>
               Zpět
             </Button>
             {(isEditable || isAddMode) && (
