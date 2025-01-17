@@ -1,5 +1,3 @@
-// src/components/PublicWebSettings.tsx
-
 import React, { useState, useEffect, useCallback } from "react";
 import {
   Table,
