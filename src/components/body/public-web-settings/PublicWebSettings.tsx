@@ -160,7 +160,7 @@ export const PublicWebSettings: React.FC = () => {
     <div className="flex justify-center mt-10 bg-gray-100 min-h-screen p-4">
       <div className="w-full max-w-4xl bg-white p-8 rounded-lg shadow-md">
         <h2 className="text-2xl font-semibold text-center mb-6">
-          Public Web Settings
+          Nastavení veřejného webu
         </h2>
 
         <Form
@@ -171,6 +171,7 @@ export const PublicWebSettings: React.FC = () => {
             priceList: webSettings?.priceList || [],
           }}
         >
+          <h3>Ceník</h3>
           <Form.List name="priceList">
             {(fields) => (
               <>
@@ -189,7 +190,7 @@ export const PublicWebSettings: React.FC = () => {
                   icon={<PlusOutlined />}
                   className="mt-4"
                 >
-                  Add Item
+                  Přidat položku
                 </Button>
               </>
             )}
@@ -197,7 +198,7 @@ export const PublicWebSettings: React.FC = () => {
 
           <div className="flex justify-end mt-6 space-x-4">
             <Button onClick={() => form.resetFields()} disabled={!isChanged}>
-              Reset
+              Resetovat
             </Button>
             <Button
               type="primary"
@@ -205,7 +206,7 @@ export const PublicWebSettings: React.FC = () => {
               onClick={handleSave}
               disabled={!isChanged}
             >
-              Save
+              Uložit
             </Button>
           </div>
         </Form>
