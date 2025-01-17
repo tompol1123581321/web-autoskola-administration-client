@@ -54,7 +54,7 @@ export const useRegistrationsService = (): RegistrationService => {
   const getRegistrationOptions = useCallback(async (): Promise<
     TermOption[]
   > => {
-    const url = `${COMMON_ADMIN_API}/api/registrations/options`;
+    const url = `${COMMON_ADMIN_API}/registrations/options`;
 
     const response = await apiFetch(url, {
       method: "GET",
@@ -77,7 +77,7 @@ export const useRegistrationsService = (): RegistrationService => {
   // 3. Get registrations with filters
   const getRegistrations = useCallback(
     async (filter: RegistrationsFilter): Promise<RegistrationFormData[]> => {
-      const url = `${COMMON_ADMIN_API}/api/registrations`;
+      const url = `${COMMON_ADMIN_API}/registrations`;
 
       const response = await apiFetch(url, {
         method: "POST",
@@ -104,7 +104,7 @@ export const useRegistrationsService = (): RegistrationService => {
     async (
       registration: RegistrationFormData
     ): Promise<RegistrationFormData> => {
-      const url = `${COMMON_ADMIN_API}/api/registrations/update`;
+      const url = `${COMMON_ADMIN_API}/registrations/update`;
 
       const response = await apiFetch(url, {
         method: "PUT",

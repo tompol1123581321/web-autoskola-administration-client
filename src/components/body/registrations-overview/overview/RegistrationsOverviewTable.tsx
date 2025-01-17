@@ -3,7 +3,10 @@
 import React from "react";
 import { Table } from "antd";
 import { ColumnsType } from "antd/es/table";
-import { RegistrationFormData } from "autoskola-web-shared-models";
+import {
+  RegistrationFormData,
+  RegistrationsPaginationParams,
+} from "autoskola-web-shared-models";
 import { useNavigate } from "react-router-dom";
 
 // Definice sloupců tabulky s přeloženými popisky a Tailwind CSS třídami
@@ -67,92 +70,18 @@ const columns: ColumnsType<RegistrationFormData> = [
   },
 ];
 
-// Sample data pro generování smysluplných hodnot (přeloženo do češtiny)
-const firstNames = [
-  "Jan",
-  "Jana",
-  "Alice",
-  "Bob",
-  "Karel",
-  "Diana",
-  "Edward",
-  "Fiona",
-];
-const lastNames = [
-  "Novák",
-  "Doe",
-  "Johnson",
-  "Williams",
-  "Brown",
-  "Taylor",
-  "Anderson",
-  "Lee",
-];
-const emails = [
-  "jan.novak@example.com",
-  "jana.doe@example.com",
-  "alice.j@example.com",
-  "bob.w@example.com",
-  "karel.b@example.com",
-  "diana.t@example.com",
-  "edward.a@example.com",
-  "fiona.l@example.com",
-];
-const phoneNumbers = [
-  "555-1234",
-  "555-5678",
-  "555-8765",
-  "555-4321",
-  "555-1122",
-  "555-3344",
-  "555-5566",
-  "555-7788",
-];
-const notesArray = [
-  "Potřebuje extra pomoc",
-  "Preferuje ranní kurzy",
-  "Má předchozí zkušenosti",
-  "Nový student",
-  "Bude potřebovat speciální ubytování",
-  "Bydlí daleko od školy",
-  "Chce víkendové kurzy",
-  "Zajímá se o pokročilé školení",
-];
-
-// Přeložené termíny
-const terms = ["Březen", "Červen", "Září", "Prosinec"];
-
-// Pomocná funkce pro získání náhodného prvku z pole
-const getRandomElement = <T,>(arr: T[]): T =>
-  arr[Math.floor(Math.random() * arr.length)];
-
-// Generování ukázkových dat
-const dataSource = Array.from({ length: 100 }).map<RegistrationFormData>(
-  (_, i) => {
-    const selectedTerm = getRandomElement(terms);
-
-    return {
-      registrationDate: new Date(Date.now()),
-      id: i.toString(),
-      firstName: getRandomElement(firstNames),
-      lastName: getRandomElement(lastNames),
-      phoneNumber: getRandomElement(phoneNumbers),
-      email: getRandomElement(emails),
-      notes: getRandomElement(notesArray),
-      termId: selectedTerm,
-      type: getRandomElement(["A", "B", "Kombinace"]), // Typ vozidla
-    };
-  }
-);
-
 type TableProps = {
   data?: Array<RegistrationFormData>;
   isLoading?: boolean;
+  updatePagination: (pagination: RegistrationsPaginationParams) => void;
+  paginationState: RegistrationsPaginationParams;
 };
 
 export const RegistrationsOverviewTable: React.FC<TableProps> = ({
-  data = dataSource,
+  data,
   isLoading,
+  updatePagination,
+  paginationState,
 }) => {
   const navigate = useNavigate();
 
@@ -163,10 +92,14 @@ export const RegistrationsOverviewTable: React.FC<TableProps> = ({
         loading={isLoading}
         columns={columns}
         dataSource={data}
+        onChange={({ pageSize = 10, current }) => {
+          updatePagination({ page: current ?? 1, pageSize });
+        }}
         pagination={{
-          pageSize: 10,
+          pageSize: paginationState.pageSize,
           position: ["bottomCenter"],
           showSizeChanger: false,
+          current: paginationState.page,
         }}
         onRow={(record) => ({
           onClick: () => {

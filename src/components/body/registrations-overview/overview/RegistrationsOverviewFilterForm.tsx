@@ -3,16 +3,11 @@
 import React, { useCallback } from "react";
 import { Input, Select, DatePicker, Button, Checkbox, Alert } from "antd";
 import { ClearOutlined, FilterFilled } from "@ant-design/icons";
-import { RegistrationsFilter } from "autoskola-web-shared-models";
+import { RegistrationsFilter, TermOption } from "autoskola-web-shared-models";
 import dayjs from "dayjs";
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
-
-type TermOption = {
-  termId: string;
-  termName: string;
-};
 
 type Props = {
   filterState: RegistrationsFilter["dataFilterParams"];
@@ -138,8 +133,8 @@ export const RegistrationsOverviewFilterForm: React.FC<Props> = ({
               className="h-10"
             >
               {termsOptions.map((term) => (
-                <Option key={term.termId} value={term.termId}>
-                  {term.termName}
+                <Option key={term.id} value={term.id}>
+                  {term.label}
                 </Option>
               ))}
             </Select>
@@ -184,7 +179,7 @@ export const RegistrationsOverviewFilterForm: React.FC<Props> = ({
         {/* Active Terms Checkbox */}
         <div className="mt-4 flex items-center">
           <Checkbox
-            checked={filterState.activeTerms ?? true}
+            checked={filterState.activeTerms}
             onChange={(e) =>
               handleInputChange(
                 "activeTerms",
