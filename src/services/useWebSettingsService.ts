@@ -90,7 +90,7 @@ export const useWebSettingsService = (): WebSettingsService => {
     }
 
     const data = await response.json();
-    return data.settings; // Adjust based on actual response structure
+    return data; // Adjust based on actual response structure
   }, [apiFetch]);
 
   return {

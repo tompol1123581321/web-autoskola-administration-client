@@ -31,7 +31,7 @@ export const PublicWebSettings: React.FC = () => {
     setLoading(true);
     try {
       const settings = await getCurrentWebSettings();
-      console.log({ settings });
+      console.log(settings);
       setPriceList(settings?.priceList || []);
       setInitialPriceList(settings?.priceList || []);
     } catch (err: any) {
