@@ -158,7 +158,7 @@ export const useRegistrationsService = (): RegistrationService => {
   // 6. Get registration by ID
   const getRegistrationById = useCallback(
     async (id: string, termId: string): Promise<RegistrationFormData> => {
-      const url = `${COMMON_ADMIN_API}/registrations/${id}`;
+      const url = `${COMMON_ADMIN_API}/registrations/${id}/${termId}`;
 
       const response = await apiFetch(url, {
         method: "GET",
