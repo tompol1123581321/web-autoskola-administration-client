@@ -6,7 +6,6 @@ import {
   Input,
   Button,
   message,
-  Form,
   Spin,
   Alert,
   Popconfirm,
@@ -19,9 +18,13 @@ import { WebSettings } from "autoskola-web-shared-models";
 export const PublicWebSettings: React.FC = () => {
   const { getCurrentWebSettings, saveNewWebSettings } = useWebSettingsService();
 
-  const [form] = Form.useForm();
+  const [priceList, setPriceList] = useState<
+    Array<{ label: string; value: string }>
+  >([]);
+  const [initialPriceList, setInitialPriceList] = useState<
+    Array<{ label: string; value: string }>
+  >([]);
   const [loading, setLoading] = useState<boolean>(false);
-  const [webSettings, setWebSettings] = useState<WebSettings | null>(null);
   const [error, setError] = useState<string>("");
   const [isChanged, setIsChanged] = useState<boolean>(false);
 
@@ -31,42 +34,79 @@ export const PublicWebSettings: React.FC = () => {
     try {
       const settings = await getCurrentWebSettings();
       console.log({ settings });
-      setWebSettings(settings);
-      form.setFieldsValue({
-        priceList: settings?.priceList,
-      });
+      setPriceList(settings?.priceList || []);
+      setInitialPriceList(settings?.priceList || []);
     } catch (err: any) {
       setError(err.message || "Nepodařilo se načíst webová nastavení.");
     } finally {
       setLoading(false);
     }
-  }, [getCurrentWebSettings, form]);
+  }, [getCurrentWebSettings]);
 
   useEffect(() => {
     fetchWebSettings();
-  }, []);
+  }, [fetchWebSettings]);
 
   // Sledování změn ve formuláři pro povolení tlačítka Uložit
-  const handleFormChange = () => {
+  const handleInputChange = (
+    index: number,
+    field: "label" | "value",
+    value: string
+  ) => {
+    const updatedPriceList = [...priceList];
+    updatedPriceList[index][field] = value;
+    setPriceList(updatedPriceList);
+    setIsChanged(true);
+  };
+
+  // Přidání nové položky do priceList
+  const handleAdd = () => {
+    setPriceList([...priceList, { label: "", value: "" }]);
+    setIsChanged(true);
+  };
+
+  // Smazání položky z priceList
+  const handleDelete = (index: number) => {
+    const updatedPriceList = [...priceList];
+    updatedPriceList.splice(index, 1);
+    setPriceList(updatedPriceList);
     setIsChanged(true);
   };
 
   // Ošetření odeslání formuláře
   const handleSave = async () => {
+    // Validace: zkontrolovat, že všechny položky mají vyplněné label a value
+    for (let i = 0; i < priceList.length; i++) {
+      const item = priceList[i];
+      if (!item.label.trim()) {
+        message.error(`Položka ${i + 1}: Název je povinný.`);
+        return;
+      }
+      if (!item.value.trim()) {
+        message.error(`Položka ${i + 1}: Hodnota je povinná.`);
+        return;
+      }
+    }
+
+    setLoading(true);
     try {
-      const values = await form.validateFields();
-      setLoading(true);
-      await saveNewWebSettings(values);
+      const newSettings: WebSettings = { priceList };
+      await saveNewWebSettings(newSettings);
       message.success("Webová nastavení byla úspěšně aktualizována.");
       setIsChanged(false);
-      fetchWebSettings(); // Obnovení dat
+      setInitialPriceList(priceList);
     } catch (err: any) {
-      if (err.name !== "Error") {
-        setError(err.message || "Nepodařilo se uložit webová nastavení.");
-      }
+      setError(err.message || "Nepodařilo se uložit webová nastavení.");
     } finally {
       setLoading(false);
     }
+  };
+
+  // Resetování změn na původní data
+  const handleReset = () => {
+    setPriceList(initialPriceList);
+    setIsChanged(false);
+    message.info("Změny byly resetovány.");
   };
 
   // Definice sloupců tabulky
@@ -76,13 +116,11 @@ export const PublicWebSettings: React.FC = () => {
       dataIndex: "label",
       key: "label",
       render: (_: any, __: any, index: number) => (
-        <Form.Item
-          name={["priceList", index, "label"]}
-          rules={[{ required: true, message: "Prosím, zadejte název." }]}
-          style={{ margin: 0 }}
-        >
-          <Input placeholder="Název" />
-        </Form.Item>
+        <Input
+          value={priceList[index].label}
+          placeholder="Název"
+          onChange={(e) => handleInputChange(index, "label", e.target.value)}
+        />
       ),
     },
     {
@@ -90,13 +128,11 @@ export const PublicWebSettings: React.FC = () => {
       dataIndex: "value",
       key: "value",
       render: (_: any, __: any, index: number) => (
-        <Form.Item
-          name={["priceList", index, "value"]}
-          rules={[{ required: true, message: "Prosím, zadejte hodnotu." }]}
-          style={{ margin: 0 }}
-        >
-          <Input placeholder="Hodnota" />
-        </Form.Item>
+        <Input
+          value={priceList[index].value}
+          placeholder="Hodnota"
+          onChange={(e) => handleInputChange(index, "value", e.target.value)}
+        />
       ),
     },
     {
@@ -114,26 +150,6 @@ export const PublicWebSettings: React.FC = () => {
       ),
     },
   ];
-
-  // Přidání nové položky do priceList
-  const handleAdd = () => {
-    const priceList = form.getFieldValue("priceList") || [];
-    const newItem = { label: "", value: "" };
-    form.setFieldsValue({
-      priceList: [...priceList, newItem],
-    });
-    setIsChanged(true);
-  };
-
-  // Smazání položky z priceList
-  const handleDelete = (index: number) => {
-    const priceList = form.getFieldValue("priceList") || [];
-    priceList.splice(index, 1);
-    form.setFieldsValue({
-      priceList,
-    });
-    setIsChanged(true);
-  };
 
   if (loading) {
     return (
@@ -164,58 +180,39 @@ export const PublicWebSettings: React.FC = () => {
           Nastavení veřejného webu
         </h2>
 
-        <Form
-          form={form}
-          layout="vertical"
-          onValuesChange={handleFormChange}
-          initialValues={{
-            priceList: webSettings?.priceList || [],
-          }}
+        <Typography.Title level={4}>Ceník</Typography.Title>
+        <Table
+          dataSource={priceList.map((item, index) => ({ key: index, ...item }))}
+          columns={columns}
+          pagination={false}
+          bordered
+          rowKey="key"
+        />
+
+        <Button
+          type="dashed"
+          onClick={handleAdd}
+          block
+          icon={<PlusOutlined />}
+          className="mt-4"
         >
-          <Typography.Title level={4}>Ceník</Typography.Title>
-          <Form.List name="priceList">
-            {(fields) => (
-              <>
-                <Table
-                  dataSource={fields}
-                  columns={columns}
-                  rowKey={(field) => field.key}
-                  pagination={false}
-                  bordered
-                />
+          Přidat položku
+        </Button>
 
-                <Button
-                  type="dashed"
-                  onClick={handleAdd}
-                  block
-                  icon={<PlusOutlined />}
-                  className="mt-4"
-                >
-                  Přidat položku
-                </Button>
-              </>
-            )}
-          </Form.List>
-
-          <div className="flex justify-end mt-6 space-x-4">
-            <Button
-              danger
-              onClick={() => form.resetFields()}
-              disabled={!isChanged}
-            >
-              Resetovat
-            </Button>
-            <Button
-              className="bg-blue-400 hover:to-blue-600"
-              type="primary"
-              icon={<SaveOutlined />}
-              onClick={handleSave}
-              disabled={!isChanged}
-            >
-              Uložit
-            </Button>
-          </div>
-        </Form>
+        <div className="flex justify-end mt-6 space-x-4">
+          <Button danger onClick={handleReset} disabled={!isChanged}>
+            Resetovat
+          </Button>
+          <Button
+            className="bg-blue-400 hover:bg-blue-600"
+            type="primary"
+            icon={<SaveOutlined />}
+            onClick={handleSave}
+            disabled={!isChanged}
+          >
+            Uložit
+          </Button>
+        </div>
       </div>
     </div>
   );
