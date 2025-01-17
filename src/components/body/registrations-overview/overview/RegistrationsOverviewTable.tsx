@@ -15,7 +15,7 @@ const columns: ColumnsType<RegistrationFormData> = [
     title: "ID", // ID
     dataIndex: "id", // Klíč pro data
     key: "id", // Unikátní klíč
-    width: 50, // Šířka sloupce
+    width: 150, // Šířka sloupce
     className: "text-center",
   },
   {
@@ -23,49 +23,44 @@ const columns: ColumnsType<RegistrationFormData> = [
     dataIndex: "firstName",
     key: "firstName",
     className: "font-medium",
+    width: 100, // Šířka sloupce
   },
   {
     title: "Příjmení", // Last Name
     dataIndex: "lastName",
     key: "lastName",
     className: "font-medium",
+    width: 100, // Šířka sloupce
   },
   {
     title: "Telefonní číslo", // Phone Number
     dataIndex: "phoneNumber",
     key: "phoneNumber",
-    width: 150,
+    width: 100,
     className: "text-center",
   },
   {
     title: "Email", // Email
     dataIndex: "email",
     key: "email",
-    width: 200,
+    width: 100,
     className: "text-center",
   },
   {
     title: "Poznámky", // Notes
     dataIndex: "notes",
     key: "notes",
-    width: 250,
+    width: 100,
     render: (text: string) => (
       <span>{text.length > 30 ? `${text.substring(0, 30)}...` : text}</span>
-    ), // Zkrácení dlouhých poznámek
+    ),
     className: "text-left",
   },
   {
     title: "Termín", // Term
     dataIndex: "termId",
     key: "termId",
-    filters: [
-      { text: "Březen", value: "Březen" },
-      { text: "Červen", value: "Červen" },
-      { text: "Září", value: "Září" },
-      { text: "Prosinec", value: "Prosinec" },
-    ],
     onFilter: (value, record) => record.termId === value,
-    render: (termId: string) => termId, // Zobrazení názvu termínu
     className: "text-center",
   },
 ];
