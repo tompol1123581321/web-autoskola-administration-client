@@ -32,7 +32,7 @@ export const useRegistrationsService = (): RegistrationService => {
     async (
       registration: Omit<RegistrationFormData, "id">
     ): Promise<RegistrationFormData> => {
-      const url = `${COMMON_ADMIN_API}/api/registrations/add`;
+      const url = `${COMMON_ADMIN_API}/registrations/add`;
 
       const response = await apiFetch(url, {
         method: "POST",
