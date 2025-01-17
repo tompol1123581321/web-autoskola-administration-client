@@ -23,12 +23,12 @@ export const App = () => {
             <Route path="/app" element={<AppContainer />}>
               <Route index element={<RegistrationsOverview />} />
               <Route
-                path="registration-detail/:id"
+                path="registration-detail/:id/:termId"
                 element={<RegistrationDetail />}
               />
               <Route path="terms" element={<TermsOverview />} />
               <Route
-                path="terms/term-detail/:termid/:id"
+                path="terms/term-detail/:termid"
                 element={<TermDetail />}
               />
               <Route
