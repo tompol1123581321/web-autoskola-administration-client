@@ -10,6 +10,7 @@ import {
   Spin,
   Alert,
   Popconfirm,
+  Typography,
 } from "antd";
 import { useWebSettingsService } from "../../../services/useWebSettingsService";
 import { PlusOutlined, DeleteOutlined, SaveOutlined } from "@ant-design/icons";
@@ -171,7 +172,7 @@ export const PublicWebSettings: React.FC = () => {
             priceList: webSettings?.priceList || [],
           }}
         >
-          <h3>Ceník</h3>
+          <Typography.Title>Ceník</Typography.Title>
           <Form.List name="priceList">
             {(fields) => (
               <>
@@ -197,10 +198,15 @@ export const PublicWebSettings: React.FC = () => {
           </Form.List>
 
           <div className="flex justify-end mt-6 space-x-4">
-            <Button onClick={() => form.resetFields()} disabled={!isChanged}>
+            <Button
+              danger
+              onClick={() => form.resetFields()}
+              disabled={!isChanged}
+            >
               Resetovat
             </Button>
             <Button
+              className="bg-blue-400 hover:to-blue-600"
               type="primary"
               icon={<SaveOutlined />}
               onClick={handleSave}
