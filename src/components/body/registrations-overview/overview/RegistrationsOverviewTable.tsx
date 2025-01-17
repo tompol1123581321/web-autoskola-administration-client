@@ -60,6 +60,7 @@ const columns: ColumnsType<RegistrationFormData> = [
     title: "Termín", // Term
     dataIndex: "termId",
     key: "termId",
+    width: 100,
     onFilter: (value, record) => record.termId === value,
     className: "text-center",
   },
