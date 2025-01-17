@@ -29,9 +29,10 @@ export const PublicWebSettings: React.FC = () => {
     setLoading(true);
     try {
       const settings = await getCurrentWebSettings();
+      console.log({ settings });
       setWebSettings(settings);
       form.setFieldsValue({
-        priceList: settings.priceList,
+        priceList: settings?.priceList,
       });
     } catch (err: any) {
       setError(err.message || "Failed to load web settings.");
