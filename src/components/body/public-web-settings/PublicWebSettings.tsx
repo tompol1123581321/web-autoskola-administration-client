@@ -19,9 +19,7 @@ export const PublicWebSettings: React.FC = () => {
   const [priceList, setPriceList] = useState<
     Array<{ label: string; value: string }>
   >([]);
-  const [initialPriceList, setInitialPriceList] = useState<
-    Array<{ label: string; value: string }>
-  >([]);
+
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
   const [isChanged, setIsChanged] = useState<boolean>(false);
@@ -32,7 +30,6 @@ export const PublicWebSettings: React.FC = () => {
     try {
       const settings = await getCurrentWebSettings();
       setPriceList(settings?.priceList || []);
-      setInitialPriceList(settings?.priceList || []);
     } catch (err: any) {
       setError(err.message || "Nepodařilo se načíst webová nastavení.");
     } finally {
@@ -89,9 +86,9 @@ export const PublicWebSettings: React.FC = () => {
     try {
       const newSettings: WebSettings = { priceList };
       await saveNewWebSettings(newSettings);
+      await fetchWebSettings();
       message.success("Webová nastavení byla úspěšně aktualizována.");
       setIsChanged(false);
-      setInitialPriceList(priceList);
     } catch (err: any) {
       setError(err.message || "Nepodařilo se uložit webová nastavení.");
     } finally {
