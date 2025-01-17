@@ -34,7 +34,6 @@ export const useRegistrationsService = (): RegistrationService => {
     ): Promise<RegistrationFormData> => {
       const url = `${COMMON_ADMIN_API}/registrations/add`;
 
-      console.log({ registration });
       const response = await apiFetch(url, {
         method: "POST",
         headers: {
@@ -133,7 +132,7 @@ export const useRegistrationsService = (): RegistrationService => {
   // 5. Delete a registration
   const deleteRegistration = useCallback(
     async (termId: string, registrationId: string): Promise<void> => {
-      const url = `${COMMON_ADMIN_API}/api/registrations/${termId}/${registrationId}`;
+      const url = `${COMMON_ADMIN_API}/registrations/${termId}/${registrationId}`;
 
       const response = await apiFetch(url, {
         method: "DELETE",
@@ -156,7 +155,7 @@ export const useRegistrationsService = (): RegistrationService => {
   // 6. Get registration by ID
   const getRegistrationById = useCallback(
     async (id: string): Promise<RegistrationFormData> => {
-      const url = `${COMMON_ADMIN_API}/api/registrations/${id}`;
+      const url = `${COMMON_ADMIN_API}/registrations/${id}`;
 
       const response = await apiFetch(url, {
         method: "GET",
