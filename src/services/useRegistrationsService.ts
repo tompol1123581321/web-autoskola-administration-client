@@ -48,7 +48,7 @@ export const useRegistrationsService = (): RegistrationService => {
       }
 
       const data = await response.json();
-      return data.registration; // Adjust based on actual response structure
+      return data; // Adjust based on actual response structure
     },
     [apiFetch]
   );
