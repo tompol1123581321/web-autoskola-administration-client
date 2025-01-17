@@ -71,7 +71,7 @@ export const useRegistrationsService = (): RegistrationService => {
     }
 
     const data = await response.json();
-    return data.options; // Adjust based on actual response structure
+    return data; // Adjust based on actual response structure
   }, [apiFetch]);
 
   // 3. Get registrations with filters
@@ -94,7 +94,7 @@ export const useRegistrationsService = (): RegistrationService => {
       }
 
       const data = await response.json();
-      return data.registrations; // Adjust based on actual response structure
+      return data; // Adjust based on actual response structure
     },
     [apiFetch]
   );
@@ -121,7 +121,7 @@ export const useRegistrationsService = (): RegistrationService => {
       }
 
       const data = await response.json();
-      return data.registration; // Adjust based on actual response structure
+      return data; // Adjust based on actual response structure
     },
     [apiFetch]
   );
