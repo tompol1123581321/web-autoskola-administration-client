@@ -44,7 +44,7 @@ export const PublicWebSettings: React.FC = () => {
 
   useEffect(() => {
     fetchWebSettings();
-  }, [fetchWebSettings]);
+  }, []);
 
   // Sledování změn ve formuláři pro povolení tlačítka Uložit
   const handleFormChange = () => {
