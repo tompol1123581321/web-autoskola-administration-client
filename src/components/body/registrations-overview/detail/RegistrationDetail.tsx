@@ -92,7 +92,7 @@ export const RegistrationDetail: React.FC = () => {
   useEffect(() => {
     loadTermOptions();
     loadRegistration();
-  }, [loadTermOptions, loadRegistration]);
+  }, []);
 
   // Zpracování změn ve vstupních polích
   const handleChange = (
