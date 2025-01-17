@@ -91,7 +91,7 @@ export const RegistrationsOverviewTable: React.FC<TableProps> = ({
         bordered
         loading={isLoading}
         columns={columns}
-        dataSource={data}
+        dataSource={data ?? []}
         onChange={({ pageSize = 10, current }) => {
           updatePagination({ page: current ?? 1, pageSize });
         }}
