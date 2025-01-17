@@ -46,7 +46,10 @@ export const LoginPage: React.FC = () => {
   }, [login, loginFormState]);
 
   return (
-    <Layout className="min-h-screen">
+    <Layout
+      onKeyDown={(e) => e.key === "Enter" && handleLogin()}
+      className="min-h-screen"
+    >
       <Typography.Title className="mt-5 text-lg text-center">
         Autoškola Hlaváček (Administrační obrazovka)
       </Typography.Title>
