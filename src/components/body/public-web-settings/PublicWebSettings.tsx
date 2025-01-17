@@ -25,7 +25,7 @@ export const PublicWebSettings: React.FC = () => {
   const [error, setError] = useState<string>("");
   const [isChanged, setIsChanged] = useState<boolean>(false);
 
-  // Fetch current web settings
+  // Načtení aktuálních webových nastavení
   const fetchWebSettings = useCallback(async () => {
     setLoading(true);
     try {
@@ -36,7 +36,7 @@ export const PublicWebSettings: React.FC = () => {
         priceList: settings?.priceList,
       });
     } catch (err: any) {
-      setError(err.message || "Failed to load web settings.");
+      setError(err.message || "Nepodařilo se načíst webová nastavení.");
     } finally {
       setLoading(false);
     }
@@ -44,70 +44,70 @@ export const PublicWebSettings: React.FC = () => {
 
   useEffect(() => {
     fetchWebSettings();
-  }, []);
+  }, [fetchWebSettings]);
 
-  // Handle form changes to track if any changes have been made
+  // Sledování změn ve formuláři pro povolení tlačítka Uložit
   const handleFormChange = () => {
     setIsChanged(true);
   };
 
-  // Handle form submission
+  // Ošetření odeslání formuláře
   const handleSave = async () => {
     try {
       const values = await form.validateFields();
       setLoading(true);
       await saveNewWebSettings(values);
-      message.success("Web settings updated successfully.");
+      message.success("Webová nastavení byla úspěšně aktualizována.");
       setIsChanged(false);
-      fetchWebSettings(); // Refresh the data
+      fetchWebSettings(); // Obnovení dat
     } catch (err: any) {
       if (err.name !== "Error") {
-        setError(err.message || "Failed to save web settings.");
+        setError(err.message || "Nepodařilo se uložit webová nastavení.");
       }
     } finally {
       setLoading(false);
     }
   };
 
-  // Define table columns
+  // Definice sloupců tabulky
   const columns = [
     {
-      title: "Label",
+      title: "Název",
       dataIndex: "label",
       key: "label",
       render: (_: any, __: any, index: number) => (
         <Form.Item
           name={["priceList", index, "label"]}
-          rules={[{ required: true, message: "Please enter a label." }]}
+          rules={[{ required: true, message: "Prosím, zadejte název." }]}
           style={{ margin: 0 }}
         >
-          <Input placeholder="Label" />
+          <Input placeholder="Název" />
         </Form.Item>
       ),
     },
     {
-      title: "Value",
+      title: "Hodnota",
       dataIndex: "value",
       key: "value",
       render: (_: any, __: any, index: number) => (
         <Form.Item
           name={["priceList", index, "value"]}
-          rules={[{ required: true, message: "Please enter a value." }]}
+          rules={[{ required: true, message: "Prosím, zadejte hodnotu." }]}
           style={{ margin: 0 }}
         >
-          <Input placeholder="Value" />
+          <Input placeholder="Hodnota" />
         </Form.Item>
       ),
     },
     {
-      title: "Action",
+      title: "Akce",
       key: "action",
       render: (_: any, __: any, index: number) => (
         <Popconfirm
-          title="Are you sure you want to delete this item?"
+          title="Opravdu chcete smazat tuto položku?"
           onConfirm={() => handleDelete(index)}
-          okText="Yes"
-          cancelText="No"
+          okText="Ano"
+          cancelText="Ne"
         >
           <Button type="link" danger icon={<DeleteOutlined />} />
         </Popconfirm>
@@ -115,7 +115,7 @@ export const PublicWebSettings: React.FC = () => {
     },
   ];
 
-  // Handle adding a new priceList item
+  // Přidání nové položky do priceList
   const handleAdd = () => {
     const priceList = form.getFieldValue("priceList") || [];
     const newItem = { label: "", value: "" };
@@ -125,7 +125,7 @@ export const PublicWebSettings: React.FC = () => {
     setIsChanged(true);
   };
 
-  // Handle deleting a priceList item
+  // Smazání položky z priceList
   const handleDelete = (index: number) => {
     const priceList = form.getFieldValue("priceList") || [];
     priceList.splice(index, 1);
@@ -138,7 +138,7 @@ export const PublicWebSettings: React.FC = () => {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
-        <Spin tip="Loading Web Settings..." size="large" />
+        <Spin tip="Načítání webových nastavení..." size="large" />
       </div>
     );
   }
@@ -147,7 +147,7 @@ export const PublicWebSettings: React.FC = () => {
     return (
       <div className="flex justify-center items-center h-screen">
         <Alert
-          message="Error"
+          message="Chyba"
           description={error}
           type="error"
           showIcon
@@ -172,7 +172,7 @@ export const PublicWebSettings: React.FC = () => {
             priceList: webSettings?.priceList || [],
           }}
         >
-          <Typography.Title>Ceník</Typography.Title>
+          <Typography.Title level={4}>Ceník</Typography.Title>
           <Form.List name="priceList">
             {(fields) => (
               <>
