@@ -21,7 +21,10 @@ interface RegistrationService {
     registration: RegistrationFormData
   ) => Promise<RegistrationFormData>;
   getRegistrationOptions: () => Promise<TermOption[]>;
-  getRegistrationById: (id: string) => Promise<RegistrationFormData>;
+  getRegistrationById: (
+    id: string,
+    termId: string
+  ) => Promise<RegistrationFormData>;
 }
 
 export const useRegistrationsService = (): RegistrationService => {
@@ -154,7 +157,7 @@ export const useRegistrationsService = (): RegistrationService => {
 
   // 6. Get registration by ID
   const getRegistrationById = useCallback(
-    async (id: string): Promise<RegistrationFormData> => {
+    async (id: string, termId: string): Promise<RegistrationFormData> => {
       const url = `${COMMON_ADMIN_API}/registrations/${id}`;
 
       const response = await apiFetch(url, {

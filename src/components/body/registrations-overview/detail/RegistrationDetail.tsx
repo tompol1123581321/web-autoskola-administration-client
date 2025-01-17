@@ -28,7 +28,7 @@ export const RegistrationDetail: React.FC = () => {
     getRegistrationById,
     getRegistrationOptions,
   } = useRegistrationsService();
-  const { id } = useParams<{ id: string }>();
+  const { id, termId } = useParams<{ id: string; termId: string }>();
   const navigate = useNavigate();
 
   const isAddMode = id === "add";
@@ -68,10 +68,10 @@ export const RegistrationDetail: React.FC = () => {
 
   // Načtení detailů registrace (pokud není v režimu přidávání)
   const loadRegistration = useCallback(async () => {
-    if (!isAddMode && id) {
+    if (!isAddMode && id && termId) {
       try {
         setIsLoading(true);
-        const data = await getRegistrationById(id);
+        const data = await getRegistrationById(id, termId);
         setFormData({
           ...data,
           registrationDate: moment(data.registrationDate).toDate(),
@@ -87,7 +87,7 @@ export const RegistrationDetail: React.FC = () => {
         setIsLoading(false);
       }
     }
-  }, [id, isAddMode, getRegistrationById]);
+  }, [id, isAddMode, getRegistrationById, termId]);
 
   useEffect(() => {
     loadTermOptions();

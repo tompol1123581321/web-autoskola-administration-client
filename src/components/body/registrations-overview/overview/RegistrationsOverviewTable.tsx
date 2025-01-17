@@ -99,7 +99,7 @@ export const RegistrationsOverviewTable: React.FC<TableProps> = ({
         }}
         onRow={(record) => ({
           onClick: () => {
-            navigate(`/app/registration-detail/${record.id}`); // Přechod na detailní stránku
+            navigate(`/app/registration-detail/${record.id}/${record.termId}`); // Přechod na detailní stránku
           },
         })}
         rowClassName={() =>
