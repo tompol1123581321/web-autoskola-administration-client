@@ -31,7 +31,6 @@ export const PublicWebSettings: React.FC = () => {
     setLoading(true);
     try {
       const settings = await getCurrentWebSettings();
-      console.log(settings);
       setPriceList(settings?.priceList || []);
       setInitialPriceList(settings?.priceList || []);
     } catch (err: any) {
@@ -101,8 +100,8 @@ export const PublicWebSettings: React.FC = () => {
   };
 
   // Resetování změn na původní data
-  const handleReset = () => {
-    setPriceList(initialPriceList);
+  const handleReset = async () => {
+    await fetchWebSettings();
     setIsChanged(false);
     message.info("Změny byly resetovány.");
   };
