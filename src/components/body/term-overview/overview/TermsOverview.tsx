@@ -2,10 +2,6 @@ import { PlusOutlined } from "@ant-design/icons";
 import { Row, Button } from "antd";
 import { TermsOverviewFilterForm } from "./TermsOverviewFilterForm";
 import { TermsOverviewTable } from "./TermsOverviewTable";
-import { useNavigate } from "react-router-dom";
-import { useTermsService } from "../../../../services/useTermsService";
-import { useCallback, useEffect, useState } from "react";
-import { Term, TermFilter } from "autoskola-web-shared-models";
 import { useTermsOverview } from "./useTermsOverview";
 
 export const TermsOverview = () => {

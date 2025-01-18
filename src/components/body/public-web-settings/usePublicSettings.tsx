@@ -1,4 +1,3 @@
-// src/components/body/registrations-overview/PublicWebSettings/usePublicWebSettings.ts
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { Button, Input, message, Popconfirm } from "antd";
 import { WebSettings } from "autoskola-web-shared-models";
