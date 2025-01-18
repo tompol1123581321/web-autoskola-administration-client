@@ -41,10 +41,6 @@ export const TermsOverviewFilterForm: React.FC<Props> = ({
     [filterState, onSubmit]
   );
 
-  const handleReset = useCallback(() => {
-    onReset();
-  }, [onReset]);
-
   return (
     <div
       className="max-w-4xl mx-auto p-6 bg-gray-100 rounded-lg shadow-md"
@@ -152,7 +148,7 @@ export const TermsOverviewFilterForm: React.FC<Props> = ({
             danger
             type="primary"
             icon={<ClearOutlined />}
-            onClick={handleReset}
+            onClick={onReset}
             disabled={loading}
             aria-label="Resetovat filtry"
           >

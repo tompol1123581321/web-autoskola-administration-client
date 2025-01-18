@@ -27,10 +27,7 @@ export const App = () => {
                 element={<RegistrationDetail />}
               />
               <Route path="terms" element={<TermsOverview />} />
-              <Route
-                path="terms/term-detail/:termid"
-                element={<TermDetail />}
-              />
+              <Route path="terms/term-detail/:id" element={<TermDetail />} />
               <Route
                 path="public-web-settings"
                 element={<PublicWebSettings />}
