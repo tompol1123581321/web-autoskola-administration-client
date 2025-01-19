@@ -37,8 +37,8 @@ export const PublicWebSettings: React.FC = () => {
 
   return (
     <div
+      className="max-w-screen-xl"
       style={{
-        maxWidth: 900,
         margin: "40px auto",
         padding: 24,
         background: "#fff",

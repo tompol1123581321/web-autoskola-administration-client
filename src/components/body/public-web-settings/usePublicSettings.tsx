@@ -3,6 +3,7 @@ import { Button, Input, message, Popconfirm } from "antd";
 import { WebSettings } from "autoskola-web-shared-models";
 import { DeleteOutlined } from "@ant-design/icons";
 import { useWebSettingsService } from "../../../services/useWebSettingsService";
+import { ColumnType } from "antd/es/table";
 
 export const usePublicWebSettings = () => {
   const { getCurrentWebSettings, saveNewWebSettings } = useWebSettingsService();
@@ -86,12 +87,13 @@ export const usePublicWebSettings = () => {
     message.info("Změny byly resetovány.");
   }, [fetchWebSettings]);
 
-  const columns = useMemo(
+  const columns: Array<ColumnType> = useMemo(
     () => [
       {
         title: "Název",
         dataIndex: "label",
         key: "label",
+        width: 200,
         render: (_: unknown, __: unknown, index: number) => (
           <Input
             value={priceList[index].label}
@@ -104,6 +106,7 @@ export const usePublicWebSettings = () => {
         title: "Hodnota",
         dataIndex: "value",
         key: "value",
+        width: 100,
         render: (_: unknown, __: unknown, index: number) => (
           <Input
             value={priceList[index].value}
@@ -115,9 +118,12 @@ export const usePublicWebSettings = () => {
       {
         title: "Akce",
         key: "action",
+        width: 50,
+
         render: (_: unknown, __: unknown, index: number) =>
           index >= 0 && (
             <Popconfirm
+              okButtonProps={{ style: { color: "black" } }}
               title="Opravdu chcete smazat tuto položku?"
               onConfirm={() => handleDelete(index)}
               okText="Ano"
