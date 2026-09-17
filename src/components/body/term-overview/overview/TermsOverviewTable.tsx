@@ -5,19 +5,15 @@ import { Table } from "antd";
 import { ColumnsType } from "antd/es/table";
 import { Term } from "autoskola-web-shared-models";
 import { useNavigate } from "react-router-dom";
+import { formatDateTime } from "../../../../utils/dateUtils";
 
 // Definice sloupců tabulky s přeloženými popisky a Tailwind CSS třídami
 const columns: ColumnsType<Term> = [
   {
-    title: "ID", // ID
-    dataIndex: "id", // Klíč pro data
-    key: "id", // Unikátní klíč
-    width: 200, // Šířka sloupce
-  },
-  {
     title: "Datum vytvoření", // ID
     dataIndex: "created", // Klíč pro data
     key: "created", // Unikátní klíč
+    render: (value: string | Date) => formatDateTime(value),
     width: 100, // Šířka sloupce
   },
   {
@@ -80,6 +76,7 @@ export const TermsOverviewTable: React.FC<TableProps> = ({
           pageSize: 10,
           position: ["bottomCenter"],
           showSizeChanger: false,
+          showQuickJumper: { goButton: "Přejít" },
         }}
         onRow={(record) => ({
           onClick: () => {

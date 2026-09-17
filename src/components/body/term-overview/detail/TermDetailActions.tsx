@@ -31,14 +31,9 @@ export const TermDetailActions: React.FC<TermDetailActionsProps> = ({
       {(isEditable || isAddMode) && (
         <div className="flex space-x-4">
           <Button
-            type="dashed"
+            type="primary"
             onClick={onSave}
             disabled={!isChanged && !isAddMode}
-            className={`${
-              isChanged || isAddMode
-                ? "bg-blue-500 hover:bg-blue-600"
-                : "bg-blue-300 cursor-not-allowed"
-            } text-white`}
           >
             Uložit
           </Button>

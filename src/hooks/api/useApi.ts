@@ -1,12 +1,12 @@
 // hooks/useApi.ts
 
-import { useContext } from "react";
+import { useCallback, useContext } from "react";
 import { LoginContext } from "../login/LoginContextProvider";
 
 const useApi = () => {
-  const { logout } = useContext(LoginContext);
+  const { clearAuth } = useContext(LoginContext);
 
-  const apiFetch = async (url: string, options: RequestInit = {}) => {
+  const apiFetch = useCallback(async (url: string, options: RequestInit = {}) => {
     try {
       const response = await fetch(url, {
         ...options,
@@ -15,16 +15,16 @@ const useApi = () => {
 
       if (response.status === 401) {
         // Unauthorized, perform logout
-        logout();
-        throw new Error("Unauthorized");
+        clearAuth();
+        throw new Error("Vaše přihlášení vypršelo. Přihlaste se prosím znovu.");
       }
 
       return response;
     } catch (error) {
-      console.error("API Fetch Error:", error);
+      console.error("Chyba API:", error);
       throw error;
     }
-  };
+  }, [clearAuth]);
 
   return apiFetch;
 };

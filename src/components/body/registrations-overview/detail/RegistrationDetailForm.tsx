@@ -1,13 +1,14 @@
 import React from "react";
 import { Checkbox, DatePicker, Select, Input, Form, Row, Col } from "antd";
-import { RegistrationFormData, TermOption } from "autoskola-web-shared-models";
+import { TermOption } from "autoskola-web-shared-models";
 import moment from "moment";
+import { AdminRegistration } from "../../../../services/useRegistrationsService";
 
 const { TextArea } = Input;
 const { Option } = Select;
 
 interface RegistrationDetailFormProps {
-  formData: RegistrationFormData;
+  formData: AdminRegistration;
   termOptions: TermOption[];
   isAddMode: boolean;
   isEditable: boolean;
@@ -187,6 +188,24 @@ export const RegistrationDetailForm: React.FC<RegistrationDetailFormProps> = ({
             onChange={onChange}
             disabled={!isEditable && !isAddMode}
             placeholder="Zadejte poznámky"
+          />
+        </Form.Item>
+
+        <Form.Item
+          label="Interní poznámka"
+          extra="Viditelné pouze v administraci"
+          colon={false}
+        >
+          <TextArea
+            id="adminNote"
+            name="adminNote"
+            rows={4}
+            maxLength={2000}
+            showCount
+            value={formData.adminNote || ""}
+            onChange={onChange}
+            disabled={!isEditable && !isAddMode}
+            placeholder="Zadejte interní poznámku"
           />
         </Form.Item>
       </Form>

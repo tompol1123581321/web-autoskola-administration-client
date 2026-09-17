@@ -2,8 +2,9 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { message } from "antd";
 import moment from "moment";
-import { RegistrationFormData, TermOption } from "autoskola-web-shared-models";
+import { TermOption } from "autoskola-web-shared-models";
 import { useRegistrationsService } from "../../../../services/useRegistrationsService";
+import { AdminRegistration } from "../../../../services/useRegistrationsService";
 
 export const useRegistrationDetail = () => {
   const {
@@ -18,17 +19,18 @@ export const useRegistrationDetail = () => {
   const navigate = useNavigate();
   const isAddMode = useMemo(() => id === "add", [id]);
   const [termOptions, setTermOptions] = useState<Array<TermOption>>([]);
-  const [formData, setFormData] = useState<RegistrationFormData>({
+  const [formData, setFormData] = useState<AdminRegistration>({
     email: "",
     firstName: "",
     id: "",
     lastName: "",
     notes: "",
+    adminNote: "",
     phoneNumber: "",
     registrationDate: new Date(),
     termId: "",
   });
-  const [initialData, setInitialData] = useState<RegistrationFormData | null>(
+  const [initialData, setInitialData] = useState<AdminRegistration | null>(
     null
   );
   const [isChanged, setIsChanged] = useState(false);
@@ -79,13 +81,13 @@ export const useRegistrationDetail = () => {
       const hasChanged = Object.keys(formData).some((key) => {
         if (key === "registrationDate") {
           return (
-            (formData[key as keyof RegistrationFormData] as Date).getTime() !==
-            (initialData[key as keyof RegistrationFormData] as Date).getTime()
+            (formData[key as keyof AdminRegistration] as Date).getTime() !==
+            (initialData[key as keyof AdminRegistration] as Date).getTime()
           );
         }
         return (
-          formData[key as keyof RegistrationFormData] !==
-          initialData[key as keyof RegistrationFormData]
+          formData[key as keyof AdminRegistration] !==
+          initialData[key as keyof AdminRegistration]
         );
       });
       setIsChanged(hasChanged);
@@ -156,7 +158,6 @@ export const useRegistrationDetail = () => {
         message.success("Nová registrace byla úspěšně vytvořena.");
         navigate(`/registration-detail/${newRegistration.id}`);
       } else {
-        // Update existing registration
         const updatedRegistration = await updateRegistration(formData);
         message.success("Registrace byla úspěšně aktualizována.");
         // Update initial data
@@ -180,7 +181,7 @@ export const useRegistrationDetail = () => {
     if (!isAddMode && formData.id && formData.termId) {
       setIsLoading(true);
       try {
-        await deleteRegistration(formData.termId, formData.id);
+        await deleteRegistration(formData.id);
         message.success("Registrace byla úspěšně smazána.");
         navigate("/app");
       } catch (err: any) {

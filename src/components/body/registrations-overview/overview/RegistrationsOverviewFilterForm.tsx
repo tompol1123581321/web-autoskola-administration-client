@@ -1,18 +1,19 @@
 // components/body/registrations-overview/RegistrationsOverviewFilterForm.tsx
 
 import React, { useCallback } from "react";
-import { Input, Select, DatePicker, Button, Checkbox, Alert } from "antd";
+import { Input, Select, DatePicker, Button, Alert } from "antd";
 import { ClearOutlined, FilterFilled } from "@ant-design/icons";
-import { RegistrationsFilter, TermOption } from "autoskola-web-shared-models";
+import { TermOption } from "autoskola-web-shared-models";
+import { RegistrationSearchParams } from "../../../../services/useRegistrationsService";
 import dayjs from "dayjs";
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
 
 type Props = {
-  filterState: RegistrationsFilter["dataFilterParams"];
+  filterState: RegistrationSearchParams["dataFilterParams"];
   updateFilterState: (
-    filterState: RegistrationsFilter["dataFilterParams"]
+    filterState: RegistrationSearchParams["dataFilterParams"]
   ) => void;
   onSubmit: () => void;
   onReset: () => void;
@@ -37,8 +38,7 @@ export const RegistrationsOverviewFilterForm: React.FC<Props> = ({
    * @param value - The new value for the specified key.
    */
   const handleInputChange = useCallback(
-    (key: keyof RegistrationsFilter["dataFilterParams"], value: any) => {
-      console.log(key, value);
+    (key: keyof RegistrationSearchParams["dataFilterParams"], value: string | { from?: string; to?: string } | undefined) => {
       updateFilterState({
         ...filterState,
         [key]: value,
@@ -95,15 +95,15 @@ export const RegistrationsOverviewFilterForm: React.FC<Props> = ({
               htmlFor="userSearch"
               className="mb-2 font-semibold text-gray-700"
             >
-              Hledat uživatele
+              Hledat registraci
             </label>
             <Input
               id="userSearch"
-              placeholder="Hledat podle jména, emailu atd."
+              placeholder="Jméno, e-mail, telefon nebo interní poznámka"
               allowClear
               value={filterState.userSearch}
               onChange={(e) => handleInputChange("userSearch", e.target.value)}
-              aria-label="Hledat uživatele"
+              aria-label="Hledat registraci včetně interní poznámky"
               className="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
@@ -174,23 +174,6 @@ export const RegistrationsOverviewFilterForm: React.FC<Props> = ({
               className="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
-        </div>
-
-        {/* Active Terms Checkbox */}
-        <div className="mt-4 flex items-center">
-          <Checkbox
-            checked={filterState.activeTerms}
-            onChange={(e) =>
-              handleInputChange(
-                "activeTerms",
-                e.target.checked ? true : undefined
-              )
-            }
-            aria-label="Filtrovat aktivní termíny"
-            className="text-gray-700"
-          >
-            Pouze aktivní termíny
-          </Checkbox>
         </div>
 
         {/* Action Buttons */}

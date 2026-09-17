@@ -1,6 +1,4 @@
 import React from "react";
-import { Row, Button } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
 import { RegistrationsOverviewFilterForm } from "./RegistrationsOverviewFilterForm";
 import { RegistrationsOverviewTable } from "./RegistrationsOverviewTable";
 import { useRegistrationsOverview } from "./useRegistrationsOverview";
@@ -11,8 +9,9 @@ export const RegistrationsOverview: React.FC = () => {
     isLoading,
     filterState,
     registrations,
+    pagination,
+    error,
 
-    onAdd,
     handleReset,
     handleSubmit,
     updateFilterState,
@@ -28,18 +27,14 @@ export const RegistrationsOverview: React.FC = () => {
         updateFilterState={updateFilterState}
         loading={isLoading}
         termsOptions={termOptions}
+        error={error}
       />
-
-      <Row align="middle" justify="start" className="my-2 mx-4">
-        <Button onClick={onAdd} icon={<PlusOutlined />}>
-          Přidat
-        </Button>
-      </Row>
 
       <RegistrationsOverviewTable
         data={registrations}
         updatePagination={updatePaginationState}
         paginationState={filterState.paginationsParams}
+        total={pagination.total}
         isLoading={isLoading}
       />
     </>

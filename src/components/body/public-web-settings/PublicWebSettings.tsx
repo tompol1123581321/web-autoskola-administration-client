@@ -92,6 +92,7 @@ export const PublicWebSettings: React.FC = () => {
           Uložit
         </Button>
       </div>
+
     </div>
   );
 };

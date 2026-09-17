@@ -2,8 +2,10 @@
 
 import React, { useCallback, useState } from "react";
 import { Layout, Typography, Button, Input, Space, Alert, Spin } from "antd";
+import { Navigate } from "react-router-dom";
 import { Administrator } from "autoskola-web-shared-models";
 import { useLogin } from "../../hooks/login/useLogin";
+import { LoginContext } from "../../hooks/login/LoginContextProvider";
 
 const { Content } = Layout;
 
@@ -22,6 +24,7 @@ export const LoginPage: React.FC = () => {
 
   // Destructure the login function from the useLogin hook
   const { login } = useLogin();
+  const { isAuthenticated, isLoadingSession, sessionError, retrySession } = React.useContext(LoginContext);
 
   // Handle input changes
   const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -39,11 +42,33 @@ export const LoginPage: React.FC = () => {
       // On successful login, useLogin hook handles navigation
     } catch (err: any) {
       // Handle errors (e.g., invalid credentials)
-      setError(err.message || "Login failed. Please try again.");
+      setError(err.message || "Přihlášení se nepodařilo. Zkuste to prosím znovu.");
     } finally {
       setLoading(false); // Stop loading
     }
   }, [login, loginFormState]);
+
+  if (isLoadingSession) {
+    return <Layout className="min-h-screen flex items-center justify-center"><Spin tip="Ověřování přihlášení..." size="large" /></Layout>;
+  }
+
+  if (isAuthenticated) {
+    return <Navigate to="/app" replace />;
+  }
+
+  if (sessionError) {
+    return (
+      <Layout className="min-h-screen flex items-center justify-center p-4">
+        <Alert
+          message="Nelze ověřit přihlášení"
+          description={sessionError}
+          type="error"
+          showIcon
+          action={<Button type="primary" onClick={retrySession}>Opakovat</Button>}
+        />
+      </Layout>
+    );
+  }
 
   return (
     <Layout

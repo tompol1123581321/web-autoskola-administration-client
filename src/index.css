@@ -3,13 +3,12 @@
 @tailwind utilities;
 
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: "Segoe UI", Tahoma, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-
-  color-scheme: light dark;
-  color: rgba(34, 32, 32, 0.87);
-  background-color: #242424;
+  color-scheme: light;
+  color: #172033;
+  background-color: #eef2f7;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -21,4 +20,65 @@
 body {
   margin: 0;
   min-height: 100vh;
+  background-color: #eef2f7;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+.ant-layout {
+  background: #eef2f7;
+}
+
+.ant-layout-header {
+  background: #172033;
+}
+
+.ant-btn-primary:not(:disabled) {
+  color: #ffffff !important;
+  background-color: #075985 !important;
+  border-color: #075985 !important;
+}
+
+.ant-btn-primary:not(:disabled):hover,
+.ant-btn-primary:not(:disabled):focus {
+  color: #ffffff !important;
+  background-color: #0c4a6e !important;
+  border-color: #0c4a6e !important;
+}
+
+.ant-btn-primary:disabled {
+  color: #667085 !important;
+  background-color: #d7e1ea !important;
+  border-color: #b9c7d5 !important;
+}
+
+.ant-btn-dangerous:not(:disabled) {
+  color: #ffffff !important;
+  background-color: #b42318 !important;
+  border-color: #b42318 !important;
+}
+
+.ant-btn-dangerous:not(:disabled):hover,
+.ant-btn-dangerous:not(:disabled):focus {
+  color: #ffffff !important;
+  background-color: #912018 !important;
+  border-color: #912018 !important;
+}
+
+.ant-btn-dangerous:disabled {
+  color: #8d4a45 !important;
+  background-color: #f6d8d5 !important;
+  border-color: #e8b9b4 !important;
+}
+
+.ant-table-wrapper,
+.ant-card,
+.ant-alert,
+.ant-input,
+.ant-input-affix-wrapper,
+.ant-picker,
+.ant-select-selector {
+  color: #172033;
 }

@@ -3,12 +3,24 @@
 import { useCallback } from "react";
 import { COMMON_ADMIN_API } from "../constants/api";
 import useApi from "../hooks/api/useApi";
-import { WebSettings } from "autoskola-web-shared-models";
+
+export type WebSettingsData = {
+  priceList: Array<{ label: string; value: string }>;
+  termOptions: Array<{ id: string; label: string }>;
+};
+
+export type WebSettingsHistory = {
+  data: Array<{ key: string; value: WebSettingsData; updatedAt: string }>;
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+};
 
 interface WebSettingsService {
-  getWebSettingsHistory: () => Promise<Array<WebSettings>>;
-  saveNewWebSettings: (settings: WebSettings) => Promise<WebSettings>;
-  getCurrentWebSettings: () => Promise<WebSettings>;
+  getWebSettingsHistory: (page: number, pageSize: number) => Promise<WebSettingsHistory>;
+  saveNewWebSettings: (settings: WebSettingsData) => Promise<WebSettingsData>;
+  getCurrentWebSettings: () => Promise<WebSettingsData>;
 }
 
 export const useWebSettingsService = (): WebSettingsService => {
@@ -18,10 +30,8 @@ export const useWebSettingsService = (): WebSettingsService => {
    * 1. Get WebSettings History (Authorized)
    * Endpoint: GET /api/webSettings
    */
-  const getWebSettingsHistory = useCallback(async (): Promise<
-    Array<WebSettings>
-  > => {
-    const url = `${COMMON_ADMIN_API}/webSettings`;
+  const getWebSettingsHistory = useCallback(async (page: number, pageSize: number): Promise<WebSettingsHistory> => {
+    const url = `${COMMON_ADMIN_API}/webSettings/history?page=${page}&pageSize=${pageSize}`;
 
     const response = await apiFetch(url, {
       method: "GET",
@@ -33,12 +43,12 @@ export const useWebSettingsService = (): WebSettingsService => {
     if (!response.ok) {
       const errorData = await response.json();
       throw new Error(
-        errorData.error || "Failed to fetch web settings history."
+        errorData.error || "Nepodařilo se načíst historii nastavení webu."
       );
     }
 
     const data = await response.json();
-    return data.history; // Adjust based on actual response structure
+    return data;
   }, [apiFetch]);
 
   /**
@@ -46,7 +56,7 @@ export const useWebSettingsService = (): WebSettingsService => {
    * Endpoint: POST /api/webSettings/add
    */
   const saveNewWebSettings = useCallback(
-    async (settings: WebSettings): Promise<WebSettings> => {
+    async (settings: WebSettingsData): Promise<WebSettingsData> => {
       const url = `${COMMON_ADMIN_API}/webSettings/add`;
 
       const response = await apiFetch(url, {
@@ -59,11 +69,13 @@ export const useWebSettingsService = (): WebSettingsService => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to save new web settings.");
+        const error = new Error(errorData.error || "Nepodařilo se uložit webová nastavení.");
+        Object.assign(error, { status: response.status });
+        throw error;
       }
 
       const data = await response.json();
-      return data.settings; // Adjust based on actual response structure
+      return data.settings ?? data;
     },
     [apiFetch]
   );
@@ -72,7 +84,7 @@ export const useWebSettingsService = (): WebSettingsService => {
    * 3. Get Current WebSettings (No Auth Required)
    * Endpoint: GET /api/webSettings/current
    */
-  const getCurrentWebSettings = useCallback(async (): Promise<WebSettings> => {
+  const getCurrentWebSettings = useCallback(async (): Promise<WebSettingsData> => {
     const url = `${COMMON_ADMIN_API}/webSettings/current`;
 
     const response = await apiFetch(url, {
@@ -85,7 +97,7 @@ export const useWebSettingsService = (): WebSettingsService => {
     if (!response.ok) {
       const errorData = await response.json();
       throw new Error(
-        errorData.error || "Failed to fetch current web settings."
+        errorData.error || "Nepodařilo se načíst aktuální nastavení webu."
       );
     }
 

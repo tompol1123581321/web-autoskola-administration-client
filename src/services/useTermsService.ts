@@ -31,7 +31,7 @@ export const useTermsService = (): TermsService => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to fetch terms.");
+        throw new Error(errorData.error || "Nepodařilo se načíst termíny.");
       }
 
       const data = await response.json();
@@ -58,7 +58,7 @@ export const useTermsService = (): TermsService => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to add term.");
+        throw new Error(errorData.error || "Termín se nepodařilo vytvořit.");
       }
 
       const data = await response.json();
@@ -83,7 +83,7 @@ export const useTermsService = (): TermsService => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to update term.");
+        throw new Error(errorData.error || "Termín se nepodařilo upravit.");
       }
 
       const data = await response.json();
@@ -107,7 +107,7 @@ export const useTermsService = (): TermsService => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to delete term.");
+        throw new Error(errorData.error || "Termín se nepodařilo smazat.");
       }
 
       // No need to return anything
@@ -130,7 +130,7 @@ export const useTermsService = (): TermsService => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to get term.");
+        throw new Error(errorData.error || "Nepodařilo se načíst termín.");
       }
       return await response.json();
     },

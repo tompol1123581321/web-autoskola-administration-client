@@ -1,14 +1,14 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { Button, Input, message, Popconfirm } from "antd";
-import { WebSettings } from "autoskola-web-shared-models";
 import { DeleteOutlined } from "@ant-design/icons";
-import { useWebSettingsService } from "../../../services/useWebSettingsService";
+import { WebSettingsData, useWebSettingsService } from "../../../services/useWebSettingsService";
 import { ColumnType } from "antd/es/table";
 
 export const usePublicWebSettings = () => {
   const { getCurrentWebSettings, saveNewWebSettings } = useWebSettingsService();
 
-  const [priceList, setPriceList] = useState<WebSettings["priceList"]>([]);
+  const [priceList, setPriceList] = useState<WebSettingsData["priceList"]>([]);
+  const [termOptions, setTermOptions] = useState<WebSettingsData["termOptions"]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
   const [isChanged, setIsChanged] = useState<boolean>(false);
@@ -18,6 +18,7 @@ export const usePublicWebSettings = () => {
     try {
       const settings = await getCurrentWebSettings();
       setPriceList(settings?.priceList || []);
+      setTermOptions(settings?.termOptions || []);
     } catch (err: any) {
       setError(err.message || "Nepodařilo se načíst webová nastavení.");
     } finally {
@@ -69,17 +70,22 @@ export const usePublicWebSettings = () => {
 
     setLoading(true);
     try {
-      const newSettings: WebSettings = { priceList };
+      const newSettings: WebSettingsData = { priceList, termOptions };
       await saveNewWebSettings(newSettings);
       await fetchWebSettings();
       message.success("Webová nastavení byla úspěšně aktualizována.");
       setIsChanged(false);
     } catch (err: any) {
-      setError(err.message || "Nepodařilo se uložit webová nastavení.");
+      if (err.status === 502) {
+        message.warning("Nastavení bylo uloženo, ale nasazení se nepodařilo spustit. Zkontrolujte nebo opakujte nasazení.");
+        setIsChanged(false);
+      } else {
+        setError(err.message || "Nepodařilo se uložit webová nastavení.");
+      }
     } finally {
       setLoading(false);
     }
-  }, [priceList, saveNewWebSettings, fetchWebSettings]);
+  }, [priceList, termOptions, saveNewWebSettings, fetchWebSettings]);
 
   const handleReset = useCallback(async () => {
     await fetchWebSettings();

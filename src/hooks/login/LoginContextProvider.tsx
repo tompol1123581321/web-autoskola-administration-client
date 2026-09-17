@@ -1,17 +1,28 @@
 // context/LoginContextProvider.tsx
 
-import React, { createContext, PropsWithChildren, useState } from "react";
+import React, { createContext, PropsWithChildren, useCallback, useEffect, useMemo, useState } from "react";
+import { getAdminSession } from "../../services/loginService";
+
+export type AuthUser = { name: string; email?: string; exp?: number };
 
 type LoginContextType = {
-  update: (newContext: LoginContextType["value"]) => void;
-  value: { isLoggedIn: boolean; userName?: string };
-  logout: () => void;
+  user: AuthUser | null;
+  isAuthenticated: boolean;
+  isLoadingSession: boolean;
+  sessionError: string;
+  setUser: (user: AuthUser | null) => void;
+  clearAuth: () => void;
+  retrySession: () => Promise<void>;
 };
 
 const DEFAULT_CONTEXT_VALUE: LoginContextType = {
-  update: () => {},
-  value: { isLoggedIn: false },
-  logout: () => {},
+  user: null,
+  isAuthenticated: false,
+  isLoadingSession: true,
+  sessionError: "",
+  setUser: () => {},
+  clearAuth: () => {},
+  retrySession: async () => {},
 };
 
 export const LoginContext = createContext<LoginContextType>(
@@ -21,16 +32,39 @@ export const LoginContext = createContext<LoginContextType>(
 export const LoginContextProvider: React.FC<PropsWithChildren> = ({
   children,
 }) => {
-  const [contextValue, setContextValue] = useState(DEFAULT_CONTEXT_VALUE.value);
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [isLoadingSession, setIsLoadingSession] = useState(true);
+  const [sessionError, setSessionError] = useState("");
 
-  const logout = () => {
-    setContextValue({ isLoggedIn: false, userName: undefined });
-    // Optionally, you can perform additional actions here, such as clearing local storage
-  };
+  const clearAuth = useCallback(() => {
+    setUser(null);
+  }, []);
+
+  const retrySession = useCallback(async () => {
+    setIsLoadingSession(true);
+    setSessionError("");
+    try {
+      const session = await getAdminSession();
+      setUser(session.isAuthorized && session.user ? session.user : null);
+    } catch (error) {
+      setSessionError(error instanceof Error ? error.message : "Nelze ověřit přihlášení.");
+    } finally {
+      setIsLoadingSession(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    retrySession();
+  }, [retrySession]);
+
+  const value = useMemo(
+    () => ({ user, isAuthenticated: Boolean(user), isLoadingSession, sessionError, setUser, clearAuth, retrySession }),
+    [user, isLoadingSession, sessionError, clearAuth, retrySession]
+  );
 
   return (
     <LoginContext.Provider
-      value={{ value: contextValue, update: setContextValue, logout }}
+      value={value}
     >
       {children}
     </LoginContext.Provider>

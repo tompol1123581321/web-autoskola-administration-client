@@ -21,6 +21,7 @@ export const TermDetail: React.FC = () => {
     handleChange,
     handleNumberChange,
     handleCheckboxChange,
+    handleDateChange,
     handleEditToggle,
     handleSave,
     handleDelete,
@@ -80,6 +81,7 @@ export const TermDetail: React.FC = () => {
           onLabelChange={handleChange}
           onNumberChange={handleNumberChange}
           onCheckboxChange={handleCheckboxChange}
+          onDateChange={handleDateChange}
         />
 
         {/* Actions (Save, Delete, Back) */}

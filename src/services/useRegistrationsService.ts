@@ -3,28 +3,49 @@
 import { useCallback } from "react";
 import {
   RegistrationFormData,
-  RegistrationsFilter,
   TermOption, // Assuming this is the type returned by /options
 } from "autoskola-web-shared-models";
 import useApi from "../hooks/api/useApi";
 import { COMMON_ADMIN_API } from "../constants/api";
 
+export type RegistrationSearchParams = {
+  dataFilterParams: {
+    termId?: string;
+    userSearch?: string;
+    registrationDate?: { from?: string; to?: string };
+  };
+  sortParams: { key: string; direction: "ASC" | "DESC" };
+  paginationsParams: { page: number; pageSize: number };
+};
+
+export type AdminRegistration = RegistrationFormData & {
+  adminNote?: string;
+};
+
+export type RegistrationSearchResponse = {
+  data: AdminRegistration[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+};
+
 interface RegistrationService {
   getRegistrations: (
-    filter: RegistrationsFilter
-  ) => Promise<RegistrationFormData[]>;
-  deleteRegistration: (termId: string, registrationId: string) => Promise<void>;
+    filter: RegistrationSearchParams
+  ) => Promise<RegistrationSearchResponse>;
+  deleteRegistration: (registrationId: string) => Promise<void>;
   createRegistration: (
     registration: Omit<RegistrationFormData, "id">
   ) => Promise<RegistrationFormData>;
   updateRegistration: (
-    registration: RegistrationFormData
-  ) => Promise<RegistrationFormData>;
+    registration: AdminRegistration
+  ) => Promise<AdminRegistration>;
   getRegistrationOptions: () => Promise<TermOption[]>;
   getRegistrationById: (
     id: string,
     termId: string
-  ) => Promise<RegistrationFormData>;
+  ) => Promise<AdminRegistration>;
 }
 
 export const useRegistrationsService = (): RegistrationService => {
@@ -35,7 +56,7 @@ export const useRegistrationsService = (): RegistrationService => {
     async (
       registration: Omit<RegistrationFormData, "id">
     ): Promise<RegistrationFormData> => {
-      const url = `${COMMON_ADMIN_API}/registrations/add`;
+      const url = `${COMMON_ADMIN_API}/registrations`;
 
       const response = await apiFetch(url, {
         method: "POST",
@@ -47,7 +68,7 @@ export const useRegistrationsService = (): RegistrationService => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to create registration.");
+        throw new Error(errorData.error || "Registraci se nepodařilo vytvořit.");
       }
 
       const data = await response.json();
@@ -72,7 +93,7 @@ export const useRegistrationsService = (): RegistrationService => {
     if (!response.ok) {
       const errorData = await response.json();
       throw new Error(
-        errorData.error || "Failed to fetch registration options."
+        errorData.error || "Nepodařilo se načíst volby termínů."
       );
     }
 
@@ -82,8 +103,8 @@ export const useRegistrationsService = (): RegistrationService => {
 
   // 3. Get registrations with filters
   const getRegistrations = useCallback(
-    async (filter: RegistrationsFilter): Promise<RegistrationFormData[]> => {
-      const url = `${COMMON_ADMIN_API}/registrations`;
+    async (filter: RegistrationSearchParams): Promise<RegistrationSearchResponse> => {
+      const url = `${COMMON_ADMIN_API}/registrations/search`;
 
       const response = await apiFetch(url, {
         method: "POST",
@@ -96,11 +117,11 @@ export const useRegistrationsService = (): RegistrationService => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to fetch registrations.");
+        throw new Error(errorData.error || "Nepodařilo se načíst registrace.");
       }
 
       const data = await response.json();
-      return data; // Adjust based on actual response structure
+      return data;
     },
     [apiFetch]
   );
@@ -108,8 +129,8 @@ export const useRegistrationsService = (): RegistrationService => {
   // 4. Update a registration
   const updateRegistration = useCallback(
     async (
-      registration: RegistrationFormData
-    ): Promise<RegistrationFormData> => {
+      registration: AdminRegistration
+    ): Promise<AdminRegistration> => {
       const url = `${COMMON_ADMIN_API}/registrations/update`;
 
       const response = await apiFetch(url, {
@@ -123,7 +144,7 @@ export const useRegistrationsService = (): RegistrationService => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to update registration.");
+        throw new Error(errorData.error || "Registraci se nepodařilo upravit.");
       }
 
       const data = await response.json();
@@ -134,8 +155,8 @@ export const useRegistrationsService = (): RegistrationService => {
 
   // 5. Delete a registration
   const deleteRegistration = useCallback(
-    async (termId: string, registrationId: string): Promise<void> => {
-      const url = `${COMMON_ADMIN_API}/registrations/${termId}/${registrationId}`;
+    async (registrationId: string): Promise<void> => {
+      const url = `${COMMON_ADMIN_API}/registrations/${registrationId}`;
 
       const response = await apiFetch(url, {
         method: "DELETE",
@@ -147,7 +168,7 @@ export const useRegistrationsService = (): RegistrationService => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to delete registration.");
+        throw new Error(errorData.error || "Registraci se nepodařilo smazat.");
       }
 
       // Assuming no content is returned on successful delete
@@ -157,7 +178,7 @@ export const useRegistrationsService = (): RegistrationService => {
 
   // 6. Get registration by ID
   const getRegistrationById = useCallback(
-    async (id: string, termId: string): Promise<RegistrationFormData> => {
+    async (id: string, termId: string): Promise<AdminRegistration> => {
       const url = `${COMMON_ADMIN_API}/registrations/${id}/${termId}`;
 
       const response = await apiFetch(url, {
@@ -170,7 +191,7 @@ export const useRegistrationsService = (): RegistrationService => {
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(
-          errorData.error || "Failed to fetch registration by ID."
+          errorData.error || "Nepodařilo se načíst detail registrace."
         );
       }
 

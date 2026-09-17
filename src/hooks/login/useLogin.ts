@@ -11,20 +11,20 @@ import {
 
 export const useLogin = () => {
   const navigate = useNavigate();
-  const { update } = useContext(LoginContext);
+  const { setUser, clearAuth } = useContext(LoginContext);
 
   const login = async (userData: Omit<Administrator, "email">) => {
     try {
       const { isAuthorized, user } = await loginAdminRequest(userData);
-      update({ isLoggedIn: isAuthorized, userName: user?.name });
+      setUser(isAuthorized && user ? user : null);
 
       if (isAuthorized) {
         navigate("/app", { replace: true });
       } else {
-        throw new Error("Authorization failed. Please check your credentials.");
+        throw new Error("Přihlášení nebylo autorizováno. Zkontrolujte přihlašovací údaje.");
       }
     } catch (error) {
-      console.error("Login failed:", error);
+      console.error("Přihlášení se nepodařilo:", error);
       throw error;
     }
   };
@@ -35,7 +35,7 @@ export const useLogin = () => {
     } catch (e) {
       console.log(e);
     } finally {
-      update({ isLoggedIn: false, userName: undefined });
+      clearAuth();
       navigate("/", { replace: true });
     }
   };

@@ -1,4 +1,6 @@
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
+import { ConfigProvider } from "antd";
+import csCZ from "antd/locale/cs_CZ";
 import { AppContainer } from "./components/layout/AppContainer";
 import { LoginPage } from "./components/login/LoginPage";
 import { RegistrationsOverview } from "./components/body/registrations-overview/overview/RegistrationsOverview";
@@ -11,9 +13,24 @@ import { TermsOverview } from "./components/body/term-overview/overview/TermsOve
 import { TermDetail } from "./components/body/term-overview/detail/TermDetail";
 
 export const App = () => {
+  const locale = {
+    ...csCZ,
+    Pagination: {
+      ...csCZ.Pagination,
+      items_per_page: "položek na stránku",
+      jump_to: "Přejít na",
+      jump_to_confirm: "potvrdit",
+      page: "stránka",
+    },
+  };
+
   return (
-    <LoginContextProvider>
-      <BrowserRouter>
+    <ConfigProvider
+      locale={locale}
+      theme={{ token: { colorPrimary: "#075985", colorInfo: "#075985", colorText: "#172033", colorBgLayout: "#eef2f7", colorBgContainer: "#ffffff", colorBorder: "#9aa8bb", borderRadius: 6 } }}
+    >
+      <LoginContextProvider>
+        <BrowserRouter>
         <Routes>
           {/* Public Route */}
           <Route path="/" element={<LoginPage />} />
@@ -39,7 +56,8 @@ export const App = () => {
           {/* Fallback Route */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
-      </BrowserRouter>
-    </LoginContextProvider>
+        </BrowserRouter>
+      </LoginContextProvider>
+    </ConfigProvider>
   );
 };

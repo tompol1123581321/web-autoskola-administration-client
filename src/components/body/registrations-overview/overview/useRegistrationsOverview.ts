@@ -1,17 +1,13 @@
 import { useState, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useRegistrationsService } from "../../../../services/useRegistrationsService";
-import {
-  RegistrationsFilter,
-  RegistrationFormData,
-  RegistrationFormDataFilter,
-  RegistrationsPaginationParams,
-  TermOption,
-} from "autoskola-web-shared-models";
+import { TermOption } from "autoskola-web-shared-models";
+import { RegistrationSearchParams } from "../../../../services/useRegistrationsService";
+import { AdminRegistration } from "../../../../services/useRegistrationsService";
 
-const DEFAULT_FILTER_STATE: RegistrationsFilter = {
-  dataFilterParams: { activeTerms: true },
-  paginationsParams: { page: 1, pageSize: 10 },
+const DEFAULT_FILTER_STATE: RegistrationSearchParams = {
+  dataFilterParams: {},
+  paginationsParams: { page: 1, pageSize: 20 },
   sortParams: { direction: "DESC", key: "registrationDate" },
 };
 
@@ -22,11 +18,12 @@ export const useRegistrationsOverview = () => {
 
   const [termOptions, setTermOptions] = useState<Array<TermOption>>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [filterState, setFilterState] =
-    useState<RegistrationsFilter>(DEFAULT_FILTER_STATE);
+  const [filterState, setFilterState] = useState<RegistrationSearchParams>(DEFAULT_FILTER_STATE);
   const [registrations, setRegistrations] = useState<
-    Array<RegistrationFormData>
+    Array<AdminRegistration>
   >([]);
+  const [pagination, setPagination] = useState({ total: 0, totalPages: 0 });
+  const [error, setError] = useState("");
 
   const loadTermOptions = useCallback(async () => {
     try {
@@ -42,11 +39,13 @@ export const useRegistrationsOverview = () => {
 
   const handleSubmit = useCallback(async () => {
     setIsLoading(true);
+    setError("");
     try {
-      const data = await getRegistrations(filterState);
-      setRegistrations(data);
+      const response = await getRegistrations(filterState);
+      setRegistrations(response.data);
+      setPagination({ total: response.total, totalPages: response.totalPages });
     } catch (error) {
-      console.error("Error fetching registrations:", error);
+      setError(error instanceof Error ? error.message : "Nepodařilo se načíst registrace.");
     } finally {
       setIsLoading(false);
     }
@@ -54,19 +53,23 @@ export const useRegistrationsOverview = () => {
 
   useEffect(() => {
     loadTermOptions();
-    handleSubmit();
-  }, []);
+  }, [loadTermOptions]);
+
+  useEffect(() => {
+    const timeout = window.setTimeout(handleSubmit, filterState.dataFilterParams.userSearch ? 350 : 0);
+    return () => window.clearTimeout(timeout);
+  }, [filterState, handleSubmit]);
 
   const onAdd = () => {
     navigate("/app/registration-detail/add/none");
   };
 
-  const updateFilterState = (filter: RegistrationFormDataFilter) => {
-    setFilterState((prev) => ({ ...prev, dataFilterParams: filter }));
+  const updateFilterState = (filter: RegistrationSearchParams["dataFilterParams"]) => {
+    setFilterState((prev) => ({ ...prev, dataFilterParams: filter, paginationsParams: { ...prev.paginationsParams, page: 1 } }));
   };
 
-  const updatePaginationState = (pagination: RegistrationsPaginationParams) => {
-    setFilterState((prev) => ({ ...prev, paginationsParams: pagination }));
+  const updatePaginationState = (nextPagination: RegistrationSearchParams["paginationsParams"]) => {
+    setFilterState((prev) => ({ ...prev, paginationsParams: nextPagination }));
   };
 
   const handleReset = () => {
@@ -78,6 +81,8 @@ export const useRegistrationsOverview = () => {
     isLoading,
     filterState,
     registrations,
+    pagination,
+    error,
     onAdd,
     handleReset,
     handleSubmit,

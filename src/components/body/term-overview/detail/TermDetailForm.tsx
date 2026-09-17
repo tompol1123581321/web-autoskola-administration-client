@@ -1,16 +1,23 @@
 // src/components/body/terms-overview/TermDetail/TermDetailForm.tsx
 import React from "react";
-import { Form, Row, Col, Input, InputNumber, Checkbox } from "antd";
+import { Form, Row, Col, Input, InputNumber, Checkbox, DatePicker } from "antd";
 import { Term } from "autoskola-web-shared-models";
 import moment from "moment";
+
+type TermFormData = Term & {
+  description?: string;
+  startDate?: Date | string;
+  endDate?: Date | string;
+};
 
 interface TermDetailFormProps {
   isAddMode: boolean;
   isEditable: boolean;
-  formData: Term;
-  onLabelChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  formData: TermFormData;
+  onLabelChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   onNumberChange: (value: number | null) => void;
   onCheckboxChange: (checked: boolean) => void;
+  onDateChange: (field: "startDate" | "endDate", value: Date | null) => void;
 }
 
 /**
@@ -23,6 +30,7 @@ export const TermDetailForm: React.FC<TermDetailFormProps> = ({
   onLabelChange,
   onNumberChange,
   onCheckboxChange,
+  onDateChange,
 }) => {
   return (
     <Form layout="vertical">
@@ -42,7 +50,7 @@ export const TermDetailForm: React.FC<TermDetailFormProps> = ({
           <Col span={12}>
             <Form.Item label="Vytvořeno">
               <Input
-                value={moment(formData.created).format("YYYY-MM-DD HH:mm")}
+                value={moment(formData.created).format("DD.MM.YYYY HH:mm")}
                 disabled
                 className="bg-gray-100 cursor-not-allowed"
               />
@@ -98,6 +106,41 @@ export const TermDetailForm: React.FC<TermDetailFormProps> = ({
           </Form.Item>
         </Col>
       </Row>
+
+      <Row gutter={24}>
+        <Col span={12}>
+          <Form.Item label="Začátek termínu" required>
+            <DatePicker
+              className="w-full"
+              value={formData.startDate ? moment(formData.startDate) : null}
+              onChange={(date) => onDateChange("startDate", date ? date.toDate() : null)}
+              disabled={!isEditable && !isAddMode}
+              format="DD.MM.YYYY"
+            />
+          </Form.Item>
+        </Col>
+        <Col span={12}>
+          <Form.Item label="Konec termínu" required>
+            <DatePicker
+              className="w-full"
+              value={formData.endDate ? moment(formData.endDate) : null}
+              onChange={(date) => onDateChange("endDate", date ? date.toDate() : null)}
+              disabled={!isEditable && !isAddMode}
+              format="DD.MM.YYYY"
+            />
+          </Form.Item>
+        </Col>
+      </Row>
+
+      <Form.Item label="Popis">
+        <Input.TextArea
+          name="description"
+          value={formData.description || ""}
+          onChange={onLabelChange}
+          disabled={!isEditable && !isAddMode}
+          rows={3}
+        />
+      </Form.Item>
 
       {/* Aktivní checkbox */}
       <Row>
