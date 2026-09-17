@@ -43,11 +43,11 @@ const columns: ColumnsType<Term> = [
     width: 100,
   },
   {
-    title: "Aktuální počet registrací", // Phone Number
+    title: "Aktuální počet registrací", 
     dataIndex: "registeredCount",
 
     render(value) {
-      return value?.length ?? 0;
+      return value ?? 0;
     },
     key: "registeredCount",
     width: 100,
