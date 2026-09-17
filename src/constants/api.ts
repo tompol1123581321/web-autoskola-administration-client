@@ -1,1 +1,1 @@
-export const COMMON_ADMIN_API = "http://localhost:4000/api";
+export const COMMON_ADMIN_API = import.meta.env.VITE_COMMON_ADMIN_API;
