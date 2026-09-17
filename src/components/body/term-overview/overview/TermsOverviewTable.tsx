@@ -44,12 +44,12 @@ const columns: ColumnsType<Term> = [
   },
   {
     title: "Aktuální počet registrací", // Phone Number
-    dataIndex: "registrations",
+    dataIndex: "registeredCount",
 
     render(value) {
       return value?.length ?? 0;
     },
-    key: "registrations",
+    key: "registeredCount",
     width: 100,
   },
 ];
