@@ -4,12 +4,13 @@ import React from "react";
 import { Table } from "antd";
 import { ColumnsType } from "antd/es/table";
 import { useNavigate } from "react-router-dom";
+import { TermOption } from "autoskola-web-shared-models";
 import { RegistrationSearchParams } from "../../../../services/useRegistrationsService";
 import { AdminRegistration } from "../../../../services/useRegistrationsService";
 import { formatDateTime } from "../../../../utils/dateUtils";
 
 // Definice sloupců tabulky s přeloženými popisky a Tailwind CSS třídami
-const columns: ColumnsType<AdminRegistration> = [
+const getColumns = (termOptions: TermOption[]): ColumnsType<AdminRegistration> => [
   {
     title: "Jméno", // First Name
     dataIndex: "firstName",
@@ -45,6 +46,8 @@ const columns: ColumnsType<AdminRegistration> = [
     width: 100,
     onFilter: (value, record) => record.termId === value,
     className: "text-center",
+    render: (termId: string) =>
+      termOptions.find((term) => term.id === termId)?.label ?? termId,
   },
   {
     title: "Datum registrace",
@@ -73,6 +76,7 @@ const columns: ColumnsType<AdminRegistration> = [
 
 type TableProps = {
   data?: Array<AdminRegistration>;
+  termOptions: TermOption[];
   isLoading?: boolean;
   updatePagination: (pagination: RegistrationSearchParams["paginationsParams"]) => void;
   paginationState: RegistrationSearchParams["paginationsParams"];
@@ -81,6 +85,7 @@ type TableProps = {
 
 export const RegistrationsOverviewTable: React.FC<TableProps> = ({
   data,
+  termOptions,
   isLoading,
   updatePagination,
   paginationState,
@@ -93,7 +98,7 @@ export const RegistrationsOverviewTable: React.FC<TableProps> = ({
       <Table<AdminRegistration>
         bordered
         loading={isLoading}
-        columns={columns}
+        columns={getColumns(termOptions)}
         dataSource={data ?? []}
         tableLayout="fixed"
         locale={{ emptyText: "Pro zadané filtry nebyly nalezeny žádné registrace." }}

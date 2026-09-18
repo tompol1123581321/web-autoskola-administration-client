@@ -32,6 +32,7 @@ export const RegistrationsOverview: React.FC = () => {
 
       <RegistrationsOverviewTable
         data={registrations}
+        termOptions={termOptions}
         updatePagination={updatePaginationState}
         paginationState={filterState.paginationsParams}
         total={pagination.total}
