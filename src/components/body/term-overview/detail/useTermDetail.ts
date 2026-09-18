@@ -44,8 +44,9 @@ export const useTermDetail = () => {
       setLoading(true);
       try {
         const term = await getTermById(id);
-        setFormData(term);
-        setInitialData(term);
+        const normalizedTerm = { ...term, registrations: term.registrations ?? [] };
+        setFormData(normalizedTerm);
+        setInitialData(normalizedTerm);
       } catch (err: any) {
         setError(err.message || "Nepodařilo se načíst data termínu.");
       } finally {
@@ -96,7 +97,7 @@ export const useTermDetail = () => {
         ...prev,
         termConfig: { ...prev.termConfig, maxRegistrationsCount },
         isActive:
-          maxRegistrationsCount > prev.registrations.length ? true : prev.isActive,
+          maxRegistrationsCount > (prev.registrations?.length ?? 0) ? true : prev.isActive,
       };
       trackChanges(updated);
       return updated;
