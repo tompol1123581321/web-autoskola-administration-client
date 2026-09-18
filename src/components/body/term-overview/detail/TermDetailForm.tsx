@@ -2,7 +2,7 @@
 import React from "react";
 import { Form, Row, Col, Input, InputNumber, Checkbox, DatePicker } from "antd";
 import { Term } from "autoskola-web-shared-models";
-import moment from "moment";
+import dayjs from "dayjs";
 
 type TermFormData = Term & {
   description?: string;
@@ -50,7 +50,7 @@ export const TermDetailForm: React.FC<TermDetailFormProps> = ({
           <Col span={12}>
             <Form.Item label="Vytvořeno">
               <Input
-                value={moment(formData.created).format("DD.MM.YYYY HH:mm")}
+                value={dayjs(formData.created).format("DD.MM.YYYY HH:mm")}
                 disabled
                 className="bg-gray-100 cursor-not-allowed"
               />
@@ -112,7 +112,7 @@ export const TermDetailForm: React.FC<TermDetailFormProps> = ({
           <Form.Item label="Začátek termínu" required>
             <DatePicker
               className="w-full"
-              value={formData.startDate ? moment(formData.startDate) : null}
+              value={formData.startDate ? dayjs(formData.startDate) : null}
               onChange={(date) => onDateChange("startDate", date ? date.toDate() : null)}
               disabled={!isEditable && !isAddMode}
               format="DD.MM.YYYY"
@@ -123,7 +123,7 @@ export const TermDetailForm: React.FC<TermDetailFormProps> = ({
           <Form.Item label="Konec termínu" required>
             <DatePicker
               className="w-full"
-              value={formData.endDate ? moment(formData.endDate) : null}
+              value={formData.endDate ? dayjs(formData.endDate) : null}
               onChange={(date) => onDateChange("endDate", date ? date.toDate() : null)}
               disabled={!isEditable && !isAddMode}
               format="DD.MM.YYYY"
