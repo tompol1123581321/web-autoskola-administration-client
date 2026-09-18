@@ -17,6 +17,15 @@ export type WebSettingsHistory = {
   totalPages: number;
 };
 
+type WebSettingsResponse = WebSettingsData | WebSettingsHistory;
+
+const normalizeWebSettings = (
+  settings?: Partial<WebSettingsData>
+): WebSettingsData => ({
+  priceList: settings?.priceList ?? [],
+  termOptions: settings?.termOptions ?? [],
+});
+
 interface WebSettingsService {
   getWebSettingsHistory: (page: number, pageSize: number) => Promise<WebSettingsHistory>;
   saveNewWebSettings: (settings: WebSettingsData) => Promise<WebSettingsData>;
@@ -47,8 +56,14 @@ export const useWebSettingsService = (): WebSettingsService => {
       );
     }
 
-    const data = await response.json();
-    return data;
+    const data: WebSettingsHistory = await response.json();
+    return {
+      ...data,
+      data: data.data.map((entry) => ({
+        ...entry,
+        value: normalizeWebSettings(entry.value),
+      })),
+    };
   }, [apiFetch]);
 
   /**
@@ -101,8 +116,13 @@ export const useWebSettingsService = (): WebSettingsService => {
       );
     }
 
-    const data = await response.json();
-    return data; // Adjust based on actual response structure
+    const data: WebSettingsResponse = await response.json();
+
+    if ("data" in data) {
+      return normalizeWebSettings(data.data[0]?.value);
+    }
+
+    return normalizeWebSettings(data);
   }, [apiFetch]);
 
   return {

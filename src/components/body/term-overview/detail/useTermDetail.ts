@@ -91,9 +91,12 @@ export const useTermDetail = () => {
 
   const handleNumberChange = (value: number | null) => {
     setFormData((prev) => {
+      const maxRegistrationsCount = value ?? 0;
       const updated = {
         ...prev,
-        termConfig: { ...prev.termConfig, maxRegistrationsCount: value || 0 },
+        termConfig: { ...prev.termConfig, maxRegistrationsCount },
+        isActive:
+          maxRegistrationsCount > prev.registrations.length ? true : prev.isActive,
       };
       trackChanges(updated);
       return updated;
