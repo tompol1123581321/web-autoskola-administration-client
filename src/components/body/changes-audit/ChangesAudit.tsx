@@ -2,6 +2,7 @@ import { ReloadOutlined } from "@ant-design/icons";
 import { Alert, Button, Descriptions, Empty, Space, Table, Tag, Typography } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { useCallback, useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { WebSettingsData, useWebSettingsService } from "../../../services/useWebSettingsService";
 import { formatDateTime } from "../../../utils/dateUtils";
 
@@ -10,24 +11,6 @@ type HistoryEntry = {
   value: WebSettingsData;
   updatedAt: string;
 };
-
-const columns: ColumnsType<HistoryEntry> = [
-  {
-    title: "Uloženo",
-    dataIndex: "updatedAt",
-    render: (value: string) => formatDateTime(value),
-  },
-  {
-    title: "Ceník",
-    dataIndex: "value",
-    render: (value: WebSettingsData) => <Tag color="blue">{value.priceList.length} položek</Tag>,
-  },
-  {
-    title: "Nabízené termíny",
-    dataIndex: "value",
-    render: (value: WebSettingsData) => <Tag color="green">{value.termOptions.length} voleb</Tag>,
-  },
-];
 
 export const ChangesAudit = () => {
   const { getWebSettingsHistory } = useWebSettingsService();
@@ -49,6 +32,26 @@ export const ChangesAudit = () => {
       setLoading(false);
     }
   }, [getWebSettingsHistory]);
+
+  const columns: ColumnsType<HistoryEntry> = [
+    {
+      title: "Uloženo",
+      dataIndex: "updatedAt",
+      render: (value: string) => formatDateTime(value),
+    },
+    {
+      title: "Ceník",
+      dataIndex: "value",
+      render: (value: WebSettingsData) => <Tag color="blue">{value.priceList.length} položek</Tag>,
+    },
+    {
+      title: "Nabízené termíny",
+      dataIndex: "value",
+      render: (value: WebSettingsData) => (
+        <Tag color="green">{value.termOptions.length} voleb</Tag>
+      ),
+    },
+  ];
 
   useEffect(() => {
     loadHistory();
@@ -84,7 +87,9 @@ export const ChangesAudit = () => {
               </Descriptions>
               <Descriptions size="small" column={1} title="Nabízené termíny">
                 {entry.value.termOptions.length ? entry.value.termOptions.map((item) => (
-                  <Descriptions.Item key={item.id} label={item.label}>{item.id}</Descriptions.Item>
+                  <Descriptions.Item key={item.id} label="Termín">
+                    <Link to={`/app/terms/term-detail/${item.id}`}>{item.label}</Link>
+                  </Descriptions.Item>
                 )) : <Descriptions.Item label="Stav">Bez voleb</Descriptions.Item>}
               </Descriptions>
             </Space>
