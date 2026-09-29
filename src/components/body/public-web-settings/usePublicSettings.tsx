@@ -1,13 +1,18 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { Button, Input, message, Popconfirm } from "antd";
 import { DeleteOutlined } from "@ant-design/icons";
+import type { DragEndEvent } from "@dnd-kit/core";
 import { WebSettingsData, useWebSettingsService } from "../../../services/useWebSettingsService";
 import { ColumnType } from "antd/es/table";
+import { DragHandle } from "./SortableRow";
+
+// client-side only id, used for stable React/dnd-kit keys and stripped before saving
+type PriceListRow = WebSettingsData["priceList"][number] & { _id: string };
 
 export const usePublicWebSettings = () => {
   const { getCurrentWebSettings, saveNewWebSettings } = useWebSettingsService();
 
-  const [priceList, setPriceList] = useState<WebSettingsData["priceList"]>([]);
+  const [priceList, setPriceList] = useState<PriceListRow[]>([]);
   const [termOptions, setTermOptions] = useState<WebSettingsData["termOptions"]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
@@ -17,7 +22,9 @@ export const usePublicWebSettings = () => {
     setLoading(true);
     try {
       const settings = await getCurrentWebSettings();
-      setPriceList(settings?.priceList || []);
+      setPriceList(
+        (settings?.priceList || []).map((item) => ({ ...item, _id: crypto.randomUUID() }))
+      );
       setTermOptions(settings?.termOptions || []);
     } catch (err: any) {
       setError(err.message || "Nepodařilo se načíst webová nastavení.");
@@ -41,7 +48,7 @@ export const usePublicWebSettings = () => {
   );
 
   const handleAdd = useCallback(() => {
-    setPriceList((prev) => [...prev, { label: "", value: "" }]);
+    setPriceList((prev) => [...prev, { label: "", value: "", _id: crypto.randomUUID() }]);
     setIsChanged(true);
   }, []);
 
@@ -70,7 +77,10 @@ export const usePublicWebSettings = () => {
 
     setLoading(true);
     try {
-      const newSettings: WebSettingsData = { priceList, termOptions };
+      const newSettings: WebSettingsData = {
+        priceList: priceList.map(({ _id, ...item }) => item),
+        termOptions,
+      };
       await saveNewWebSettings(newSettings);
       await fetchWebSettings();
       message.success("Webová nastavení byla úspěšně aktualizována.");
@@ -93,8 +103,32 @@ export const usePublicWebSettings = () => {
     message.info("Změny byly resetovány.");
   }, [fetchWebSettings]);
 
+  const handleDragEnd = useCallback(({ active, over }: DragEndEvent) => {
+    if (!over || active.id === over.id) {
+      return;
+    }
+    setPriceList((prev) => {
+      const activeIndex = prev.findIndex((item) => item._id === active.id);
+      const overIndex = prev.findIndex((item) => item._id === over.id);
+      if (activeIndex === -1 || overIndex === -1) {
+        return prev;
+      }
+      const updated = [...prev];
+      const [moved] = updated.splice(activeIndex, 1);
+      updated.splice(overIndex, 0, moved);
+      return updated;
+    });
+    setIsChanged(true);
+  }, []);
+
   const columns: Array<ColumnType> = useMemo(
     () => [
+      {
+        title: "",
+        key: "sort",
+        width: 40,
+        render: () => <DragHandle />,
+      },
       {
         title: "Název",
         dataIndex: "label",
@@ -153,5 +187,6 @@ export const usePublicWebSettings = () => {
     handleAdd,
     handleSave,
     handleReset,
+    handleDragEnd,
   };
 };

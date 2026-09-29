@@ -1,7 +1,10 @@
 import React from "react";
 import { Typography, Table, Button, Spin, Alert } from "antd";
 import { PlusOutlined, SaveOutlined } from "@ant-design/icons";
+import { DndContext, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
+import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { usePublicWebSettings } from "./usePublicSettings";
+import { SortableRow } from "./SortableRow";
 
 export const PublicWebSettings: React.FC = () => {
   const {
@@ -13,7 +16,10 @@ export const PublicWebSettings: React.FC = () => {
     handleAdd,
     handleSave,
     handleReset,
+    handleDragEnd,
   } = usePublicWebSettings();
+
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
 
   if (loading) {
     return (
@@ -54,13 +60,21 @@ export const PublicWebSettings: React.FC = () => {
 
       <Typography.Title level={4}>Ceník</Typography.Title>
 
-      <Table
-        dataSource={priceList.map((item, index) => ({ key: index, ...item }))}
-        columns={columns}
-        pagination={false}
-        bordered
-        style={{ marginTop: 16 }}
-      />
+      <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
+        <SortableContext
+          items={priceList.map((item) => item._id)}
+          strategy={verticalListSortingStrategy}
+        >
+          <Table
+            dataSource={priceList.map((item) => ({ ...item, key: item._id }))}
+            columns={columns}
+            pagination={false}
+            bordered
+            style={{ marginTop: 16 }}
+            components={{ body: { row: SortableRow } }}
+          />
+        </SortableContext>
+      </DndContext>
 
       <Button
         type="dashed"
